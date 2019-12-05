@@ -1,0 +1,170 @@
+<template>
+    <div class="roomEntry">
+    <div class="menuOptions">
+    <div>
+    <button class="mm-button" v-on:click="refreshRooms" :disabled="!isConnected" title="Liste aktualisieren"><font-awesome-icon :icon="['fas', 'sync']" /></button>
+    <button class="mm-button" v-on:click="addRoom" :disabled="!isConnected" title="Gruppenchat hinzufügen"><font-awesome-icon :icon="['fas', 'plus']" /></button>
+    <button class="mm-button" v-on:click="delRoom" :disabled="!isConnected || !selectedRoom || (selectedRoom.affiliation !== 'owner')" title="Gruppenchat entfernen"><font-awesome-icon :icon="['fas', 'trash']" /></button>
+    </div>
+    <div class="affiliation" v-if="selectedRoom">Raumzugehörigkeit: {{ selectedRoom.affiliation }}</div>
+    </div>
+    <div><hr></div>
+    <div class="overflowDiv">
+    <div class="roomEntry"
+      v-for="room in roomentries"
+      v-bind:key="room.jid">
+      <label class="checkcontainer" :title="room.jid">{{ room.name }}
+      <input type="radio" :id="room.jid" :value="room" v-model="selectedRoom" @change="selectRoom()">
+      <span class="radiobtn"></span>
+      </label>
+    </div>
+    </div>
+    <div class="title">Chaträume</div>
+    </div>
+</template>
+<script>
+import { discoverRooms, destroyRoom, enterAndLeaveRoom } from '../xmpp_mucmanager.js'
+export default {
+  name: 'roomlist',
+  data () {
+    return {
+      roomentries: [],
+      selectedRoom: null,
+    }
+  },
+  props: ['isConnected', 'muc_domain', 'roomname_guideline', 'roomname_guideline_description'],
+  watch: {
+    isConnected: function() {
+      if (this.isConnected) {
+        this.refreshRooms()
+      } else {
+        this.roomentries = []
+      }
+    }
+  },
+  methods: {
+    refreshRooms: function () {
+      this.selectedRoom = null;
+      this.$emit('selectRoom', this.selectedRoom)
+      this.roomentries = []
+      const loader = this.$loading.show()
+      discoverRooms(this.muc_domain)
+        .then(rooms => {
+          rooms.forEach(room => {
+          this.roomentries.push({'name': room.getAttribute('name'), 'jid': room.getAttribute('jid'), 'affiliation': null})
+          })
+        })
+        .finally(() => loader.hide())
+    },
+    addRoom: function () {
+      const raumName = prompt('Raumname eingeben:\n' + this.roomname_guideline_description)
+      if (raumName) {
+        if (!RegExp(this.roomname_guideline).test(raumName)) {
+            alert('Der Raumname "' + raumName + '" entspricht nicht den Vorgaben:\n' + this.roomname_guideline_description)
+        } else if (this.roomentries.some(e => e.jid === raumName + '@' + this.muc_domain)) {
+          alert('Der Raum "' + raumName + '" existiert bereits!')
+        } else {
+          const loader = this.$loading.show()
+          enterAndLeaveRoom(raumName + '@' + this.muc_domain)
+            .then(() => this.refreshRooms())
+            .finally(() => loader.hide())
+        }
+      }
+    },
+    delRoom: function () {
+      if (confirm('Raum wirklich löschen?')) {
+        const loader = this.$loading.show()
+        destroyRoom(this.selectedRoom.jid)
+          .then(() => {
+            this.refreshRooms()
+          })
+          .finally(() => loader.hide())
+        this.selectedRoom = null
+        this.$emit('selectRoom', this.selectedRoom)
+      }
+    },
+    selectRoom: function () {
+      const loader = this.$loading.show()
+      enterAndLeaveRoom(this.selectedRoom.jid)
+        .then(presence => {
+          this.selectedRoom.affiliation = presence.querySelector('x item').getAttribute('affiliation')
+        })
+        .finally(() => {
+          this.$emit('selectRoom', this.selectedRoom)
+          loader.hide()
+        })
+
+
+    },
+  },
+}
+</script>
+<!-- Add "scoped" attribute to limit CSS to this component only -->
+<style scoped>
+.roomEntry {
+  font-size: 1.2vw;
+  padding: 5px;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+/* Customize the label (the container) */
+.checkcontainer {
+  display: block;
+  position: relative;
+  padding-left: 2vw;
+  cursor: pointer;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+/* Hide the browser's default radio button */
+.checkcontainer input {
+  position: absolute;
+  opacity: 0;
+  cursor: pointer;
+  height: 0;
+  width: 0;
+}
+
+/* Create a custom radio button */
+.radiobtn {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 1.2vw;
+  width: 1.2vw;
+  background-color: #eee;
+  border-radius: 50%;
+}
+
+/* On mouse-over, add a grey background color */
+.checkcontainer:hover input ~ .radiobtn {
+  background-color: #ccc;
+}
+
+/* When the radio button is checked, add a blue background */
+.checkcontainer input:checked ~ .radiobtn {
+  background-color: #2196F3;
+}
+
+/* Create the indicator (the dot/circle - hidden when not checked) */
+.radiobtn:after {
+  content: "";
+  position: absolute;
+  display: none;
+}
+.overflowDiv {
+  background-color: white;
+  flex: 1 1 0;
+  overflow-y: auto;
+}
+.affiliation {
+  text-transform: capitalize;
+  color: white;
+  padding-top: 2vw;
+}
+</style>

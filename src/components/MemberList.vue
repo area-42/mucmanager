@@ -1,0 +1,198 @@
+ <template>
+    <div class="memberEntry">
+    <div class="menuOptions">
+    <div>
+    <button class="mm-button" v-on:click="findRoomMember" :disabled="!selectedRoom || !isConnected" title="Liste aktualisieren"><font-awesome-icon :icon="['fas', 'sync']" /></button>
+    <button class="mm-button" v-on:click="outputExcel" :disabled="!selectedRoom || !isConnected || memberentries.length < 1" title="Liste als Excel-Datei ausgeben"><font-awesome-icon :icon="['fas', 'file-excel']" /></button>
+    <button class="mm-button" v-on:click="delAllMember" :disabled="!selectedRoom || !['owner', 'admin'].includes(selectedRoom.affiliation) || !isConnected" title="Alle entfernen"><font-awesome-icon :icon="['fas', 'user-minus']" /></button>
+    </div>
+    </div>
+    <div><hr></div>
+    <div class="overflowDiv">
+    <div v-for="member in orderedMemberentries"
+      v-bind:key="member.memberjid">
+      <div class="memberEntryDetail" :title="member.memberaffiliation">
+        <button class="mm-button" :disabled="!selectedRoom || !['owner', 'admin'].includes(selectedRoom.affiliation) || !isConnected || member.memberaffiliation != 'member'" v-on:click="delMember(member.memberjid)" title="Anwender entfernen"><font-awesome-icon :icon="['fas', 'minus-circle']" /></button> {{ member.memberjid }}
+      </div>
+    </div>
+    </div>
+    <div class="title">Mitglieder des Raumes</div>
+    </div>
+</template>
+<script>
+import { getMemberList, setAffiliation } from '../xmpp_mucmanager.js'
+import zipcelx from 'zipcelx'
+import dayjs from 'dayjs'
+import 'dayjs/locale/de'
+dayjs.locale('de')
+
+const affiliations = ['owner', 'admin', 'outcast', 'member']
+
+export default {
+  name: 'memberlist',
+  data () {
+    return {
+      memberentries: [],
+    }
+  },
+  props: ['selectedRoom', 'isConnected'],
+  watch: {
+    selectedRoom: function() {
+      if (this.selectedRoom) {
+        this.findRoomMember()
+      } else {
+        this.memberentries = []
+      }
+    },
+    isConnected: function() {
+      if (!this.isConnected) {
+        this.memberentries = []
+      }
+    }
+  },
+  methods: {
+    delMember: function (memberjid) {
+      const loader = this.$loading.show()
+      setAffiliation(this.selectedRoom.jid, [memberjid], 'none')
+        .then(() => {
+          this.findRoomMember()
+        })
+        .finally(() => loader.hide())
+    },
+    delAllMember: async function () {
+      if (confirm('Wirklich alle Mitglieder aus diesem Raum entfernen?')) {
+        const jids = this.memberentries
+          .filter(e => e.memberaffiliation === 'member')
+          .map(e => e.memberjid)
+
+        if (jids.length > 0) {
+          const loader = this.$loading.show()
+          setAffiliation(this.selectedRoom.jid, jids, 'none')
+            .finally(() => {
+              loader.hide()
+              this.findRoomMember()
+            })
+          }
+      }
+    },
+    addMember: function (jid, affiliation) {
+      const m = jid.match(/^((.*)\.)*(.*)@.*$/);
+      this.memberentries.push(
+        {'memberjid': jid,
+          'memberaffiliation': affiliation,
+          'lastname': m[3],
+          'firstname': m[2]
+        })
+    },
+    findRoomMember: function () {
+      const promises = []
+      this.memberentries = []
+      const loader = this.$loading.show()
+      affiliations.forEach(affiliation => {
+        promises.push(getMemberList(this.selectedRoom.jid, affiliation)
+          .then(memberlist => {
+            memberlist.forEach(member => {
+              this.addMember(member.getAttribute('jid'), member.getAttribute('affiliation'), true)
+            })
+          })
+        )
+      })
+      Promise.all(promises)
+        .finally(() => loader.hide())
+    },
+    addMembers: async function (members) {
+      const jids = members
+        .filter(member => !this.memberentries.some(e => e.memberjid ===  member.jid.toLowerCase()))
+        .map(e => e.jid)
+
+      if (jids.length > 0) {
+        const loader = this.$loading.show()
+        setAffiliation(this.selectedRoom.jid, jids, 'member')
+          .finally(() => {
+            loader.hide()
+            this.findRoomMember()
+          })
+      }
+    },
+    outputExcel: function() {
+      const capitalizeFirstChar = str => {
+          if (str) {
+            return str.charAt(0).toUpperCase() + str.substring(1);
+          } else {
+            return ''
+          }
+        }
+      const data = []
+      const config = {
+        filename: 'mucmanager',
+        sheet: {
+          data: data
+        }
+      };
+      data.push([{value: 'Raumname', type: 'string'},
+                 {value: this.selectedRoom.name, type: 'string'}])
+      data.push([{value: 'Raum-Jid', type: 'string'},
+                 {value: this.selectedRoom.jid, type: 'string'}])
+      data.push([])
+      data.push([{value: 'Nachname', type: 'string'},
+                 {value: 'Vorname', type: 'string'},
+                 {value: 'Jid', type: 'string'},
+                 {value: 'Zugehörigkeit', type: 'string'}])
+      this.orderedMemberentries.forEach(e => {
+        data.push([{value: capitalizeFirstChar(e.lastname), type: 'string'},
+                   {value: capitalizeFirstChar(e.firstname), type: 'string'},
+                   {value: e.memberjid, type: 'string'},
+                   {value: capitalizeFirstChar(e.memberaffiliation), type: 'string'}])
+      })
+      data.push([])
+      data.push([{value: 'Stand: ' + dayjs().format('D. MMMM YYYY HH:mm:ss') + ' Uhr', type: 'string'}])
+      zipcelx(config)
+    }
+  },
+  computed: {
+    orderedMemberentries: function () {
+      function compare (a, b) {
+        if (a.memberaffiliation !== b.memberaffiliation) {
+          return affiliations.indexOf(a.memberaffiliation) -
+            affiliations.indexOf(b.memberaffiliation)
+        }
+        if (a.lastname < b.lastname) {
+          return -1
+        }
+        if (a.lastname > b.lastname) {
+          return 1
+        }
+        if (a.firstname < b.firstname) {
+          return -1
+        }
+        if (a.firstname > b.firstname) {
+          return 1
+        }
+        return 0
+      }
+
+      return this.memberentries.concat().sort(compare)
+    }
+  },
+}
+</script>
+<style scoped>
+.memberEntry {
+  font-size: 1.2vw;
+  padding: 5px;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+.memberEntryDetail {
+  font-size: 1.2vw;
+  padding: 5px;
+  text-align: left;
+}
+.overflowDiv {
+  background-color: white;
+  flex: 1 1 0;
+  overflow-y: auto;
+}
+</style>
