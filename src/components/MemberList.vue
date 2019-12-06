@@ -26,7 +26,7 @@ import dayjs from 'dayjs'
 import 'dayjs/locale/de'
 dayjs.locale('de')
 
-const affiliations = ['owner', 'admin', 'outcast', 'member']
+const all_affiliations = ['owner', 'admin', 'outcast', 'member']
 
 export default {
   name: 'memberlist',
@@ -85,20 +85,18 @@ export default {
         })
     },
     findRoomMember: function () {
-      const promises = []
       this.memberentries = []
       const loader = this.$loading.show()
-      affiliations.forEach(affiliation => {
-        promises.push(getMemberList(this.selectedRoom.jid, affiliation)
+      Promise.all(all_affiliations.map(affiliation => {
+        getMemberList(this.selectedRoom.jid, affiliation)
           .then(memberlist => {
             memberlist.forEach(member => {
-              this.addMember(member.getAttribute('jid'), member.getAttribute('affiliation'), true)
+              this.addMember(member.getAttribute('jid'), member.getAttribute('affiliation'))
             })
           })
-        )
-      })
-      Promise.all(promises)
-        .finally(() => loader.hide())
+        })
+      )
+      .finally(() => loader.hide())
     },
     addMembers: async function (members) {
       const jids = members
@@ -153,8 +151,8 @@ export default {
     orderedMemberentries: function () {
       function compare (a, b) {
         if (a.memberaffiliation !== b.memberaffiliation) {
-          return affiliations.indexOf(a.memberaffiliation) -
-            affiliations.indexOf(b.memberaffiliation)
+          return all_affiliations.indexOf(a.memberaffiliation) -
+            all_affiliations.indexOf(b.memberaffiliation)
         }
         if (a.lastname < b.lastname) {
           return -1
