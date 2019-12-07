@@ -20,7 +20,8 @@
     </div>
 </template>
 <script>
-import { getMemberList, setAffiliation, chunk } from '../xmpp_mucmanager.js'
+import { getMemberList, setAffiliation } from '../xmpp_utils.js'
+import { capitalizeFirstChar, chunk } from '../utils.js'
 import zipcelx from 'zipcelx'
 import dayjs from 'dayjs'
 import 'dayjs/locale/de'
@@ -115,13 +116,6 @@ export default {
       this.setAffiliationForJids(jids, 'member')
     },
     outputExcel: function() {
-      const capitalizeFirstChar = str => {
-          if (str) {
-            return str.charAt(0).toUpperCase() + str.substring(1);
-          } else {
-            return ''
-          }
-        }
       const data = []
       const config = {
         filename: 'mucmanager',

@@ -15,8 +15,7 @@
   </div>
 </template>
 <script>
-const Strophe = require('strophe.js').Strophe
-import { doXmppLogin, doXmppLogout } from '../xmpp_mucmanager.js'
+import { doXmppLogin, doXmppLogout, xmppStatus } from '../xmpp_utils.js'
 export default {
   name: 'login',
   data () {
@@ -37,15 +36,15 @@ export default {
       doXmppLogout()
     },
     onConnect: function (status) {
-      this.isConnected = status === Strophe.Status.CONNECTED
+      this.isConnected = status === xmppStatus.CONNECTED
       this.$emit('connStatusChanged', this.isConnected)
       this.connStatus = status
-      if (status === Strophe.Status.CONNFAIL) {
+      if (status === xmppStatus.CONNFAIL) {
         alert('Login fehlgeschlagen')
-      } else if (status === Strophe.Status.AUTHFAIL) {
+      } else if (status === xmppStatus.AUTHFAIL) {
         alert('Falsche Nutzer/Passwortkombination')
       }
-      if ([Strophe.Status.CONNECTING, Strophe.Status.AUTHENTICATING,Strophe.Status.DISCONNECTING].includes(status)) {
+      if ([xmppStatus.CONNECTING, xmppStatus.AUTHENTICATING,xmppStatus.DISCONNECTING].includes(status)) {
         this.loader = this.$loading.show()
       } else {
         this.loader.hide()

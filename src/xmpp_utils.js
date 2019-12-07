@@ -1,6 +1,8 @@
 import { Strophe, $iq, $pres, $build } from 'strophe.js'
 
-const TIMEOUT = 5000
+const TIMEOUT = 30000
+
+const xmppStatus = Strophe.Status
 
 let connection = null
 
@@ -120,14 +122,4 @@ function doXmppLogout () {
   connection.disconnect()
 }
 
-function chunk (array, size) {
-  const chunked_arr = []
-  let index = 0
-  while (index < array.length) {
-    chunked_arr.push(array.slice(index, size + index))
-    index += size
-  }
-  return chunked_arr
-}
-
-export { doXmppLogin, doXmppLogout, destroyRoom, discoverRooms, getMemberList, enterAndLeaveRoom, setAffiliation, chunk }
+export { doXmppLogin, doXmppLogout, destroyRoom, discoverRooms, getMemberList, enterAndLeaveRoom, setAffiliation, xmppStatus }

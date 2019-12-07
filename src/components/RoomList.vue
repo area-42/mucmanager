@@ -23,7 +23,7 @@
     </div>
 </template>
 <script>
-import { discoverRooms, destroyRoom, enterAndLeaveRoom } from '../xmpp_mucmanager.js'
+import { discoverRooms, destroyRoom, enterAndLeaveRoom } from '../xmpp_utils.js'
 export default {
   name: 'roomlist',
   data () {
