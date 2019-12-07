@@ -2,7 +2,7 @@
     <div class="memberEntry">
     <div class="menuOptions">
     <div>
-    <button class="mm-button" v-on:click="findRoomMember" :disabled="!selectedRoom || !isConnected" title="Liste aktualisieren"><font-awesome-icon :icon="['fas', 'sync']" /></button>
+    <button class="mm-button" v-on:click="findRoomMembers" :disabled="!selectedRoom || !isConnected" title="Liste aktualisieren"><font-awesome-icon :icon="['fas', 'sync']" /></button>
     <button class="mm-button" v-on:click="outputExcel" :disabled="!selectedRoom || !isConnected || memberentries.length < 1" title="Liste als Excel-Datei ausgeben"><font-awesome-icon :icon="['fas', 'file-excel']" /></button>
     <button class="mm-button" v-on:click="delAllMembers" :disabled="!selectedRoom || !['owner', 'admin'].includes(selectedRoom.affiliation) || !isConnected" title="Alle entfernen"><font-awesome-icon :icon="['fas', 'user-minus']" /></button>
     </div>
@@ -40,7 +40,7 @@ export default {
   watch: {
     selectedRoom: function() {
       if (this.selectedRoom) {
-        this.findRoomMember()
+        this.findRoomMembers()
       } else {
         this.memberentries = []
       }
@@ -56,7 +56,7 @@ export default {
       const loader = this.$loading.show()
       setAffiliation(this.selectedRoom.jid, [memberjid], 'none')
         .then(() => {
-          this.findRoomMember()
+          this.findRoomMembers()
         })
         .finally(() => loader.hide())
     },
@@ -75,7 +75,7 @@ export default {
         p.finally(() => {
           loader.hide()
           this.$Progress.finish()
-          this.findRoomMember()
+          this.findRoomMembers()
         })
       }
     },
@@ -87,11 +87,11 @@ export default {
         this.setAffiliationForJids(jids, 'none')
       }
     },
-    findRoomMember: function () {
+    findRoomMembers: function () {
       this.memberentries = []
       const loader = this.$loading.show()
       Promise.all(all_affiliations.map(affiliation => {
-        getMemberList(this.selectedRoom.jid, affiliation)
+        return getMemberList(this.selectedRoom.jid, affiliation)
           .then(memberlist => {
             memberlist.forEach(member => {
               const jid = member.getAttribute('jid')
