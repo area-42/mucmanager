@@ -1,6 +1,6 @@
-function capitalizeFirstChar (str) {
+function capitalizeName (str) {
   if (str) {
-    return str.charAt(0).toUpperCase() + str.substring(1);
+    return str.replace(/(?:^|-)\S/g, a => a.toUpperCase())
   } else {
     return ''
   }
@@ -16,4 +16,4 @@ function chunk (array, size) {
   return chunked_arr
 }
 
-export { capitalizeFirstChar, chunk }
+export { capitalizeName, chunk }

@@ -21,7 +21,7 @@
 </template>
 <script>
 import { getMemberList, setAffiliation } from '../xmpp_utils.js'
-import { capitalizeFirstChar, chunk } from '../utils.js'
+import { capitalizeName, chunk } from '../utils.js'
 import zipcelx from 'zipcelx'
 import dayjs from 'dayjs'
 import 'dayjs/locale/de'
@@ -133,10 +133,10 @@ export default {
                  {value: 'Jid', type: 'string'},
                  {value: 'Zugehörigkeit', type: 'string'}])
       this.orderedMemberentries.forEach(e => {
-        data.push([{value: capitalizeFirstChar(e.lastname), type: 'string'},
-                   {value: capitalizeFirstChar(e.firstname), type: 'string'},
+        data.push([{value: capitalizeName(e.lastname), type: 'string'},
+                   {value: capitalizeName(e.firstname), type: 'string'},
                    {value: e.memberjid, type: 'string'},
-                   {value: capitalizeFirstChar(e.memberaffiliation), type: 'string'}])
+                   {value: capitalizeName(e.memberaffiliation), type: 'string'}])
       })
       data.push([])
       data.push([{value: 'Stand: ' + dayjs().format('D. MMMM YYYY HH:mm:ss') + ' Uhr', type: 'string'}])
