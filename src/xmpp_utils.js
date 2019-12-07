@@ -1,6 +1,6 @@
 import { Strophe, $iq, $pres, $build } from 'strophe.js'
 
-const TIMEOUT = 30000
+const TIMEOUT = 5000
 
 const xmppStatus = Strophe.Status
 
