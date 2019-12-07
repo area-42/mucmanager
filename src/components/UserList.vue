@@ -50,7 +50,10 @@ export default {
           this.userentries = json.data
           this.last_page = json.last_page
         })
-        .finally(() => loader.hide())
+        .finally(() => {
+          this.userentries.map(entry => entry.jid = entry.jid.toLowerCase())
+          loader.hide()
+        })
     },
     filterUserResetPage: function () {
       this.currentPage = 1

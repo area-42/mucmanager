@@ -110,7 +110,7 @@ export default {
     },
     addMembers: function (members) {
       const jids = members
-        .filter(member => !this.memberentries.some(e => e.memberjid ===  member.jid.toLowerCase()))
+        .filter(member => !this.memberentries.some(e => e.memberjid ===  member.jid))
         .map(e => e.jid)
       this.setAffiliationForJids(jids, 'member')
     },
