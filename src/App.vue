@@ -1,5 +1,6 @@
 <template>
   <div id="app" v-if="appConfig">
+    <vue-progress-bar></vue-progress-bar>
     <div class="login">
     <Login :bosh_service="appConfig.BOSH_SERVICE" :xmpp_domain="appConfig.XMPP_DOMAIN" @connStatusChanged="onConnStatusChanged"/>
     </div>

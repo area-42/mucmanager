@@ -2,6 +2,7 @@ import Vue from 'vue'
 import App from './App.vue'
 import Loading from 'vue-loading-overlay';
 import 'vue-loading-overlay/dist/vue-loading.css';
+import VueProgressBar from 'vue-progressbar'
 
 Vue.config.productionTip = false
 
@@ -11,6 +12,11 @@ Vue.use(Loading, {
     loader: 'dots',
     width: 128,
     height: 128
+})
+
+Vue.use(VueProgressBar, {
+  color: 'blue',
+  autoFinish: false,
 })
 
 import { library } from '@fortawesome/fontawesome-svg-core'

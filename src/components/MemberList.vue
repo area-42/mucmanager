@@ -4,7 +4,7 @@
     <div>
     <button class="mm-button" v-on:click="findRoomMember" :disabled="!selectedRoom || !isConnected" title="Liste aktualisieren"><font-awesome-icon :icon="['fas', 'sync']" /></button>
     <button class="mm-button" v-on:click="outputExcel" :disabled="!selectedRoom || !isConnected || memberentries.length < 1" title="Liste als Excel-Datei ausgeben"><font-awesome-icon :icon="['fas', 'file-excel']" /></button>
-    <button class="mm-button" v-on:click="delAllMember" :disabled="!selectedRoom || !['owner', 'admin'].includes(selectedRoom.affiliation) || !isConnected" title="Alle entfernen"><font-awesome-icon :icon="['fas', 'user-minus']" /></button>
+    <button class="mm-button" v-on:click="delAllMembers" :disabled="!selectedRoom || !['owner', 'admin'].includes(selectedRoom.affiliation) || !isConnected" title="Alle entfernen"><font-awesome-icon :icon="['fas', 'user-minus']" /></button>
     </div>
     </div>
     <div><hr></div>
@@ -20,13 +20,14 @@
     </div>
 </template>
 <script>
-import { getMemberList, setAffiliation } from '../xmpp_mucmanager.js'
+import { getMemberList, setAffiliation, chunk } from '../xmpp_mucmanager.js'
 import zipcelx from 'zipcelx'
 import dayjs from 'dayjs'
 import 'dayjs/locale/de'
 dayjs.locale('de')
 
 const all_affiliations = ['owner', 'admin', 'outcast', 'member']
+const CHUNKSIZE = 25
 
 export default {
   name: 'memberlist',
@@ -59,30 +60,32 @@ export default {
         })
         .finally(() => loader.hide())
     },
-    delAllMember: async function () {
+    setAffiliationForJids: function (jids, affiliation) {
+      if (jids.length > 0) {
+        const loader = this.$loading.show()
+        this.$Progress.start()
+        this.$Progress.pause()
+        let p = Promise.resolve()
+        chunk(jids, CHUNKSIZE).forEach((jidsChunk, i, chunks) => {
+          p = p.then(() => {
+            this.$Progress.set(100/chunks.length*i)
+            return setAffiliation(this.selectedRoom.jid, jidsChunk, affiliation)
+          })
+        })
+        p.finally(() => {
+          loader.hide()
+          this.$Progress.finish()
+          this.findRoomMember()
+        })
+      }
+    },
+    delAllMembers: function () {
       if (confirm('Wirklich alle Mitglieder aus diesem Raum entfernen?')) {
         const jids = this.memberentries
           .filter(e => e.memberaffiliation === 'member')
           .map(e => e.memberjid)
-
-        if (jids.length > 0) {
-          const loader = this.$loading.show()
-          setAffiliation(this.selectedRoom.jid, jids, 'none')
-            .finally(() => {
-              loader.hide()
-              this.findRoomMember()
-            })
-          }
+        this.setAffiliationForJids(jids, 'none')
       }
-    },
-    addMember: function (jid, affiliation) {
-      const m = jid.match(/^((.*)\.)*(.*)@.*$/);
-      this.memberentries.push(
-        {'memberjid': jid,
-          'memberaffiliation': affiliation,
-          'lastname': m[3],
-          'firstname': m[2]
-        })
     },
     findRoomMember: function () {
       this.memberentries = []
@@ -91,26 +94,25 @@ export default {
         getMemberList(this.selectedRoom.jid, affiliation)
           .then(memberlist => {
             memberlist.forEach(member => {
-              this.addMember(member.getAttribute('jid'), member.getAttribute('affiliation'))
+              const jid = member.getAttribute('jid')
+              const m = jid.match(/^((.*)\.)*(.*)@.*$/);
+              this.memberentries.push(
+                {'memberjid': jid,
+                  'memberaffiliation': member.getAttribute('affiliation'),
+                  'lastname': m[3],
+                  'firstname': m[2]
+                })
             })
           })
         })
       )
       .finally(() => loader.hide())
     },
-    addMembers: async function (members) {
+    addMembers: function (members) {
       const jids = members
         .filter(member => !this.memberentries.some(e => e.memberjid ===  member.jid.toLowerCase()))
         .map(e => e.jid)
-
-      if (jids.length > 0) {
-        const loader = this.$loading.show()
-        setAffiliation(this.selectedRoom.jid, jids, 'member')
-          .finally(() => {
-            loader.hide()
-            this.findRoomMember()
-          })
-      }
+      this.setAffiliationForJids(jids, 'member')
     },
     outputExcel: function() {
       const capitalizeFirstChar = str => {
