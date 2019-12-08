@@ -1,6 +1,6 @@
 module.exports = {
-  publicPath: '',
-  configureWebpack:{
+  publicPath: "",
+  configureWebpack: {
     optimization: {
       splitChunks: {
         minSize: 10000,
@@ -8,4 +8,4 @@ module.exports = {
       }
     }
   }
-}
+};

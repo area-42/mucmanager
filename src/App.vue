@@ -1,64 +1,89 @@
 <template>
-  <div id="app" v-if="appConfig">
-    <vue-progress-bar></vue-progress-bar>
+  <div
+    v-if="appConfig"
+    id="app"
+  >
+    <vue-progress-bar />
     <div class="login">
-    <Login :bosh_service="appConfig.BOSH_SERVICE" :xmpp_domain="appConfig.XMPP_DOMAIN" @connStatusChanged="onConnStatusChanged"/>
+      <Login
+        :bosh-service="appConfig.BOSH_SERVICE"
+        :xmpp-domain="appConfig.XMPP_DOMAIN"
+        @connStatusChanged="onConnStatusChanged"
+      />
     </div>
     <div class="main">
       <div class="box">
-      <UserList @addUsers="onAddUsers" :baseurl="appConfig.BASEURL" :apikey="appConfig.APIKEY" :selectedRoom="selectedRoom" :isConnected="isConnected"/>
+        <UserList
+          :baseurl="appConfig.BASEURL"
+          :apikey="appConfig.APIKEY"
+          :selected-room="selectedRoom"
+          :is-connected="isConnected"
+          @addUsers="onAddUsers"
+        />
       </div>
       <div class="box">
-      <RoomList @selectRoom="onSelectRoom" :isConnected="isConnected" :muc_domain="appConfig.MUC_DOMAIN" :roomname_guideline="appConfig.ROOMNAME_GUIDELINE" :roomname_guideline_description="appConfig.ROOMNAME_GUIDELINE_DESCRIPTION"/>
+        <RoomList
+          :is-connected="isConnected"
+          :muc-domain="appConfig.MUC_DOMAIN"
+          :roomname-guideline="appConfig.ROOMNAME_GUIDELINE"
+          :roomname-guideline-description="
+            appConfig.ROOMNAME_GUIDELINE_DESCRIPTION
+          "
+          @selectRoom="onSelectRoom"
+        />
       </div>
       <div class="box">
-      <MemberList ref="memberlist" :selectedRoom="selectedRoom" :isConnected="isConnected"/>
+        <MemberList
+          ref="memberlist"
+          :selected-room="selectedRoom"
+          :is-connected="isConnected"
+        />
       </div>
     </div>
   </div>
 </template>
 <script>
-import UserList from './components/UserList'
-import Login from './components/Login'
-import RoomList from './components/RoomList'
-import MemberList from './components/MemberList'
+import UserList from "./components/UserList";
+import Login from "./components/Login";
+import RoomList from "./components/RoomList";
+import MemberList from "./components/MemberList";
 export default {
-  name: 'App',
-  data () {
-    return {
-      appConfig: null,
-      selectedRoom: null,
-      isConnected: false
-    }
-  },
+  name: "App",
   components: {
     UserList,
     Login,
     RoomList,
-    MemberList,
+    MemberList
+  },
+  data() {
+    return {
+      appConfig: null,
+      selectedRoom: null,
+      isConnected: false
+    };
+  },
+  created() {
+    fetch("./config/runtime.json")
+      .then(res => res.json())
+      .then(json => (this.appConfig = json));
   },
 
   methods: {
-    onSelectRoom: function (room) {
-      this.selectedRoom = room
+    onSelectRoom(room) {
+      this.selectedRoom = room;
     },
-    onConnStatusChanged: function (isConnected) {
-      this.isConnected = isConnected
+    onConnStatusChanged(isConnected) {
+      this.isConnected = isConnected;
     },
-    onAddUsers: function (users) {
-      this.$refs.memberlist.addMembers(users)
+    onAddUsers(users) {
+      this.$refs.memberlist.addMembers(users);
     }
-  },
-  created: function () {
-    fetch('./config/runtime.json')
-      .then(res => res.json())
-      .then(json => this.appConfig = json)
-  },
-}
+  }
+};
 </script>
 <style>
 #app {
-  font-family: 'Avenir', Helvetica, Arial, sans-serif;
+  font-family: "Avenir", Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
@@ -74,27 +99,27 @@ export default {
 body {
   font-size: 10px;
   font-size: 1.3vw;
- }
+}
 .main {
   display: flex;
   flex: 1;
   min-height: 0;
- }
- .login {
+}
+.login {
   margin-top: 5px;
- }
+}
 .box {
- padding: 5px;
- background: #210B61;
- margin: 5px;
- display: flex;
- flex: 1;
- min-height: 0;
- flex-direction: column;
- width: 0;
+  padding: 5px;
+  background: #210b61;
+  margin: 5px;
+  display: flex;
+  flex: 1;
+  min-height: 0;
+  flex-direction: column;
+  width: 0;
 }
 *:focus {
-    outline: none;
+  outline: none;
 }
 .title {
   font-size: 1.6vw;
@@ -107,7 +132,7 @@ body {
   display: flex;
   flex-direction: column;
 }
-.mm-button{
+.mm-button {
   font-size: 1.6vw;
   color: rgb(88, 170, 197);
   background: none;
@@ -119,7 +144,7 @@ body {
   padding-bottom: 0;
   padding-left: 0;
 }
-.mm-button:disabled{
+.mm-button:disabled {
   color: grey;
   cursor: default;
 }

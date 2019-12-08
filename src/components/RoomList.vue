@@ -1,103 +1,166 @@
 <template>
-    <div class="roomEntry">
+  <div class="roomEntry">
     <div class="menuOptions">
-    <div>
-    <button class="mm-button" v-on:click="refreshRooms" :disabled="!isConnected" title="Liste aktualisieren"><font-awesome-icon :icon="['fas', 'sync']" /></button>
-    <button class="mm-button" v-on:click="addRoom" :disabled="!isConnected" title="Gruppenchat hinzufügen"><font-awesome-icon :icon="['fas', 'plus']" /></button>
-    <button class="mm-button" v-on:click="delRoom" :disabled="!isConnected || !selectedRoom || (selectedRoom.affiliation !== 'owner')" title="Gruppenchat entfernen"><font-awesome-icon :icon="['fas', 'trash']" /></button>
-    </div>
-    <div class="affiliation" v-if="selectedRoom">Raumzugehörigkeit: {{ selectedRoom.affiliation }}</div>
+      <div>
+        <button
+          class="mm-button"
+          :disabled="!isConnected"
+          title="Liste aktualisieren"
+          @click="refreshRooms"
+        >
+          <font-awesome-icon :icon="['fas', 'sync']" />
+        </button>
+        <button
+          class="mm-button"
+          :disabled="!isConnected"
+          title="Gruppenchat hinzufügen"
+          @click="addRoom"
+        >
+          <font-awesome-icon :icon="['fas', 'plus']" />
+        </button>
+        <button
+          class="mm-button"
+          :disabled="
+            !isConnected ||
+              !selectedRoom ||
+              selectedRoom.affiliation !== 'owner'
+          "
+          title="Gruppenchat entfernen"
+          @click="delRoom"
+        >
+          <font-awesome-icon :icon="['fas', 'trash']" />
+        </button>
+      </div>
+      <div
+        v-if="selectedRoom"
+        class="affiliation"
+      >
+        Raumzugehörigkeit: {{ selectedRoom.affiliation }}
+      </div>
     </div>
     <div><hr></div>
     <div class="overflowDiv">
-    <div class="roomEntry"
-      v-for="room in roomentries"
-      v-bind:key="room.jid">
-      <label class="checkcontainer" :title="room.jid">{{ room.name }}
-      <input type="radio" :id="room.jid" :value="room" v-model="selectedRoom" @change="selectRoom()">
-      <span class="radiobtn"></span>
-      </label>
+      <div
+        v-for="room in roomentries"
+        :key="room.jid"
+        class="roomEntry"
+      >
+        <label
+          class="checkcontainer"
+          :title="room.jid"
+        >
+          {{ room.name }}
+          <input
+            :id="room.jid"
+            v-model="selectedRoom"
+            type="radio"
+            :value="room"
+            @change="selectRoom"
+          >
+          <span class="radiobtn" />
+        </label>
+      </div>
     </div>
+    <div class="title">
+      Chaträume
     </div>
-    <div class="title">Chaträume</div>
-    </div>
+  </div>
 </template>
 <script>
-import { discoverRooms, destroyRoom, enterAndLeaveRoom } from '../xmpp_utils.js'
+import {
+  destroyRoom,
+  discoverRooms,
+  enterAndLeaveRoom
+} from "../xmpp_utils.js";
 export default {
-  name: 'roomlist',
-  data () {
+  name: "Roomlist",
+  props: {
+    "isConnected": {type: Boolean},
+    "mucDomain": {type: String, default: null},
+    "roomnameGuideline": {type: Object, default: null},
+    "roomnameGuidelineDescription": {type: String, default: null}
+  },
+  data() {
     return {
       roomentries: [],
-      selectedRoom: null,
-    }
+      selectedRoom: null
+    };
   },
-  props: ['isConnected', 'muc_domain', 'roomname_guideline', 'roomname_guideline_description'],
   watch: {
-    isConnected: function() {
+    isConnected() {
       if (this.isConnected) {
-        this.refreshRooms()
+        this.refreshRooms();
       } else {
-        this.roomentries = []
+        this.roomentries = [];
       }
     }
   },
   methods: {
-    refreshRooms: function () {
+    refreshRooms() {
       this.selectedRoom = null;
-      this.$emit('selectRoom', this.selectedRoom)
-      this.roomentries = []
-      const loader = this.$loading.show()
-      discoverRooms(this.muc_domain)
+      this.$emit("selectRoom", this.selectedRoom);
+      this.roomentries = [];
+      const loader = this.$loading.show();
+      discoverRooms(this.mucDomain)
         .then(rooms => {
           rooms.forEach(room => {
-          this.roomentries.push({'name': room.getAttribute('name'), 'jid': room.getAttribute('jid'), 'affiliation': null})
-          })
+            this.roomentries.push({
+              name: room.getAttribute("name"),
+              jid: room.getAttribute("jid"),
+              affiliation: null
+            });
+          });
         })
-        .finally(() => loader.hide())
+        .finally(() => loader.hide());
     },
-    addRoom: function () {
-      const raumName = prompt('Raumname eingeben:\n' + this.roomname_guideline_description)
+    addRoom() {
+      const raumName = prompt(
+        `Raumname eingeben:\n${this.roomnameGuideline_description}`
+      );
       if (raumName) {
-        if (!RegExp(this.roomname_guideline).test(raumName)) {
-            alert('Der Raumname "' + raumName + '" entspricht nicht den Vorgaben:\n' + this.roomname_guideline_description)
-        } else if (this.roomentries.some(e => e.jid === raumName + '@' + this.muc_domain)) {
-          alert('Der Raum "' + raumName + '" existiert bereits!')
+        if (!RegExp(this.roomnameGuideline).test(raumName)) {
+          alert(
+            `Der Raumname "${raumName}" entspricht nicht den Vorgaben:\n${this.roomnameGuideline_description}`
+          );
+        } else if (
+          this.roomentries.some(e => e.jid === `${raumName}@${this.mucDomain}`)
+        ) {
+          alert(`Der Raum "${raumName}" existiert bereits!`);
         } else {
-          const loader = this.$loading.show()
-          enterAndLeaveRoom(raumName + '@' + this.muc_domain)
+          const loader = this.$loading.show();
+          enterAndLeaveRoom(`${raumName}@${this.mucDomain}`)
             .then(() => this.refreshRooms())
-            .finally(() => loader.hide())
+            .finally(() => loader.hide());
         }
       }
     },
-    delRoom: function () {
-      if (confirm('Raum wirklich löschen?')) {
-        const loader = this.$loading.show()
+    delRoom() {
+      if (confirm("Raum wirklich löschen?")) {
+        const loader = this.$loading.show();
         destroyRoom(this.selectedRoom.jid)
           .then(() => {
-            this.refreshRooms()
+            this.refreshRooms();
           })
-          .finally(() => loader.hide())
-        this.selectedRoom = null
-        this.$emit('selectRoom', this.selectedRoom)
+          .finally(() => loader.hide());
+        this.selectedRoom = null;
+        this.$emit("selectRoom", this.selectedRoom);
       }
     },
-    selectRoom: function () {
-      const loader = this.$loading.show()
+    selectRoom() {
+      const loader = this.$loading.show();
       enterAndLeaveRoom(this.selectedRoom.jid)
         .then(presence => {
-          this.selectedRoom.affiliation = presence.querySelector('x item').getAttribute('affiliation')
+          this.selectedRoom.affiliation = presence
+            .querySelector("x item")
+            .getAttribute("affiliation");
         })
         .finally(() => {
-          this.$emit('selectRoom', this.selectedRoom)
-          loader.hide()
-        })
-
-
-    },
-  },
-}
+          this.$emit("selectRoom", this.selectedRoom);
+          loader.hide();
+        });
+    }
+  }
+};
 </script>
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
@@ -148,7 +211,7 @@ export default {
 
 /* When the radio button is checked, add a blue background */
 .checkcontainer input:checked ~ .radiobtn {
-  background-color: #2196F3;
+  background-color: #2196f3;
 }
 
 /* Create the indicator (the dot/circle - hidden when not checked) */
