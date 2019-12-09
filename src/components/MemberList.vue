@@ -32,16 +32,10 @@
         </button>
       </div>
     </div>
-    <div><hr></div>
+    <div><hr /></div>
     <div class="overflowDiv">
-      <div
-        v-for="member in orderedMemberentries"
-        :key="member.memberjid"
-      >
-        <div
-          class="memberEntryDetail"
-          :title="member.memberaffiliation"
-        >
+      <div v-for="member in orderedMemberentries" :key="member.memberjid">
+        <div class="memberEntryDetail" :title="member.memberaffiliation">
           <button
             class="mm-button"
             :disabled="
@@ -79,8 +73,7 @@ export default {
   name: "Memberlist",
   props: {
     selectedRoom: { type: Object, default: null },
-    isConnected: { type: Boolean
-    }
+    isConnected: { type: Boolean }
   },
   data() {
     return {

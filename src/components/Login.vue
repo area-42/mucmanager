@@ -1,22 +1,15 @@
 <template>
   <div>
-    <div
-      v-if="showLogin"
-      class="loginDiv"
-    >
+    <div v-if="showLogin" class="loginDiv">
       <span>Bitte anmelden</span>
-      <input
-        v-model="xmppUser"
-        class="loginInput"
-        placeholder="vorname.name"
-      >
+      <input v-model="xmppUser" class="loginInput" placeholder="vorname.name" />
       <input
         v-model="xmppPass"
         class="loginInput"
         placeholder="Kennwort"
         type="password"
         @keyup.enter="doLogin"
-      >
+      />
       <button
         v-if="isConnected"
         class="mm-button"
@@ -25,12 +18,7 @@
       >
         <font-awesome-icon :icon="['fas', 'sign-out-alt']" />
       </button>
-      <button
-        v-else
-        class="mm-button"
-        title="Login"
-        @click="doLogin"
-      >
+      <button v-else class="mm-button" title="Login" @click="doLogin">
         <font-awesome-icon :icon="['fas', 'sign-in-alt']" />
       </button>
     </div>

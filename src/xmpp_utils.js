@@ -1,8 +1,7 @@
-import {$build, $iq, $pres, Strophe} from "strophe.js";
+import { $build, $iq, $pres, Strophe } from "strophe.js";
 
 const TIMEOUT = 5000,
-
-    xmppStatus = Strophe.Status;
+  xmppStatus = Strophe.Status;
 
 let connection = null;
 
@@ -11,19 +10,10 @@ let connection = null;
  *
  */
 
-function sendIQ (stanza, timeout = TIMEOUT) {
-
-    return new Promise((resolve, reject) => {
-
-        connection.sendIQ(
-            stanza,
-            resolve,
-            reject,
-            timeout
-        );
-
-    });
-
+function sendIQ(stanza, timeout = TIMEOUT) {
+  return new Promise((resolve, reject) => {
+    connection.sendIQ(stanza, resolve, reject, timeout);
+  });
 }
 
 /**
@@ -31,165 +21,108 @@ function sendIQ (stanza, timeout = TIMEOUT) {
  *
  */
 
-function sendPresence (stanza, timeout = TIMEOUT) {
-
-    return new Promise((resolve, reject) => {
-
-        connection.sendPresence(
-            stanza,
-            resolve,
-            reject,
-            timeout
-        );
-
-    });
-
+function sendPresence(stanza, timeout = TIMEOUT) {
+  return new Promise((resolve, reject) => {
+    connection.sendPresence(stanza, resolve, reject, timeout);
+  });
 }
 
-function discoverRooms (MUC_DOMAIN) {
+function discoverRooms(MUC_DOMAIN) {
+  const iq = $iq({
+    type: "get",
+    from: connection.jid,
+    to: MUC_DOMAIN
+  }).c("query", { xmlns: Strophe.NS.DISCO_ITEMS });
 
-    const iq = $iq({
-        "type": "get",
-        "from": connection.jid,
-        "to": MUC_DOMAIN
-    }).c(
-        "query",
-        {"xmlns": Strophe.NS.DISCO_ITEMS}
-    );
-
-    return sendIQ(iq).then((iq) => iq.querySelectorAll("query item"));
-
+  return sendIQ(iq).then(iq => iq.querySelectorAll("query item"));
 }
 
-function destroyRoom (roomJid) {
+function destroyRoom(roomJid) {
+  const destroy = $build("destroy"),
+    iq = $iq({
+      type: "set",
+      from: connection.jid,
+      to: roomJid
+    })
+      .c("query", { xmlns: Strophe.NS.MUC_OWNER })
+      .cnode(destroy.node);
 
-    const destroy = $build("destroy"),
-        iq = $iq({
-            "type": "set",
-            "from": connection.jid,
-            "to": roomJid
-        }).
-            c(
-                "query",
-                {"xmlns": Strophe.NS.MUC_OWNER}
-            ).
-            cnode(destroy.node);
-
-    return sendIQ(iq);
-
+  return sendIQ(iq);
 }
 
-function enterRoom (roomJid) {
+function enterRoom(roomJid) {
+  const presence = $pres({
+    from: connection.jid,
+    to: `${roomJid}/${Strophe.getNodeFromJid(connection.jid)}`
+  }).c("x", { xmlns: Strophe.NS.MUC });
 
-    const presence = $pres({
-        "from": connection.jid,
-        "to": `${roomJid}/${Strophe.getNodeFromJid(connection.jid)}`
-    }).c(
-        "x",
-        {"xmlns": Strophe.NS.MUC}
-    );
-
-    return sendPresence(presence);
-
+  return sendPresence(presence);
 }
 
-function leaveRoom (roomJid) {
+function leaveRoom(roomJid) {
+  const presence = $pres({
+    from: connection.jid,
+    to: `${roomJid}/${Strophe.getNodeFromJid(connection.jid)}`,
+    type: "unavailable"
+  }).c("x", { xmlns: Strophe.NS.MUC });
 
-    const presence = $pres({
-        "from": connection.jid,
-        "to": `${roomJid}/${Strophe.getNodeFromJid(connection.jid)}`,
-        "type": "unavailable"
-    }).c(
-        "x",
-        {"xmlns": Strophe.NS.MUC}
-    );
-
-    return sendPresence(presence);
-
+  return sendPresence(presence);
 }
 
-function enterAndLeaveRoom (roomJid) {
-
-    return enterRoom(roomJid).then(() => leaveRoom(roomJid));
-
+function enterAndLeaveRoom(roomJid) {
+  return enterRoom(roomJid).then(() => leaveRoom(roomJid));
 }
 
-function getMemberList (roomJid, affiliation) {
+function getMemberList(roomJid, affiliation) {
+  const iq = $iq({
+    type: "get",
+    from: connection.jid,
+    to: roomJid
+  })
+    .c("query", { xmlns: Strophe.NS.MUC_ADMIN })
+    .c("item", { affiliation: affiliation || "member" });
 
-    const iq = $iq({
-        "type": "get",
-        "from": connection.jid,
-        "to": roomJid
-    }).
-        c(
-            "query",
-            {"xmlns": Strophe.NS.MUC_ADMIN}
-        ).
-        c(
-            "item",
-            {"affiliation": affiliation || "member"}
-        );
-
-    return sendIQ(iq).then((iq) => iq.querySelectorAll("query item"));
-
+  return sendIQ(iq).then(iq => iq.querySelectorAll("query item"));
 }
 
-function setAffiliation (roomJid, jids, affiliation) {
+function setAffiliation(roomJid, jids, affiliation) {
+  const iq = $iq({
+    type: "set",
+    from: connection.jid,
+    to: roomJid
+  }).c("query", { xmlns: Strophe.NS.MUC_ADMIN });
 
-    const iq = $iq({
-        "type": "set",
-        "from": connection.jid,
-        "to": roomJid
-    }).c(
-        "query",
-        {"xmlns": Strophe.NS.MUC_ADMIN}
-    );
+  jids.forEach(jid =>
+    iq.c("item", { affiliation: affiliation || "member", jid }).up()
+  );
 
-    jids.forEach((jid) => iq.c(
-        "item",
-        {"affiliation": affiliation || "member",
-            jid}
-    ).up());
-
-    return sendIQ(iq);
-
+  return sendIQ(iq);
 }
 
-function doXmppLogin (xmppUser, xmppPass, BOSH_SERVICE, XMPP_DOMAIN, onConnect) {
-    Strophe.addNamespace(
-        "MUC_ADMIN",
-        `${Strophe.NS.MUC}#admin`
-    );
-    Strophe.addNamespace(
-        "MUC_OWNER",
-        `${Strophe.NS.MUC}#owner`
-    );
-    connection = new Strophe.Connection(BOSH_SERVICE);
-    connection.connect(
-        `${xmppUser.split("@")[0]
-        }@${
-            XMPP_DOMAIN
-        }/mucmanager.${
-            Math.floor(Math.random() * 139749528).toString()}`,
-        xmppPass,
-        onConnect
-    );
-
+function doXmppLogin(xmppUser, xmppPass, BOSH_SERVICE, XMPP_DOMAIN, onConnect) {
+  Strophe.addNamespace("MUC_ADMIN", `${Strophe.NS.MUC}#admin`);
+  Strophe.addNamespace("MUC_OWNER", `${Strophe.NS.MUC}#owner`);
+  connection = new Strophe.Connection(BOSH_SERVICE);
+  connection.connect(
+    `${xmppUser.split("@")[0]}@${XMPP_DOMAIN}/mucmanager.${Math.floor(
+      Math.random() * 139749528
+    ).toString()}`,
+    xmppPass,
+    onConnect
+  );
 }
 
-function doXmppLogout () {
-
-    connection.disconnect();
-
+function doXmppLogout() {
+  connection.disconnect();
 }
 
 export {
-    doXmppLogin,
-    doXmppLogout,
-    destroyRoom,
-    discoverRooms,
-    getMemberList,
-    enterAndLeaveRoom,
-    setAffiliation,
-    xmppStatus
+  doXmppLogin,
+  doXmppLogout,
+  destroyRoom,
+  discoverRooms,
+  getMemberList,
+  enterAndLeaveRoom,
+  setAffiliation,
+  xmppStatus
 };

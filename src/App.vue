@@ -1,8 +1,5 @@
 <template>
-  <div
-    v-if="appConfig"
-    id="app"
-  >
+  <div v-if="appConfig" id="app">
     <vue-progress-bar />
     <div class="login">
       <Login

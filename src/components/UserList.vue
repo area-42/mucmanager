@@ -36,25 +36,21 @@
           title="Nächste 500"
           @click="currentPage += 1"
         >
-          <font-awesome-icon :icon="['fas', 'angle-double-right']" />
-        </button><br><br>
+          <font-awesome-icon :icon="['fas', 'angle-double-right']" /></button
+        ><br /><br />
       </div>
       <input
         v-model="filterVal"
         class="filterUserInput"
         placeholder="Filtern nach Name / Dienststelle"
         @change="filterUserResetPage"
-      >
+      />
     </div>
     <div>
-      <hr>
+      <hr />
     </div>
     <div class="overflowDiv">
-      <div
-        v-for="user in userentries"
-        :key="user.jid"
-        class="userEntryDetail"
-      >
+      <div v-for="user in userentries" :key="user.jid" class="userEntryDetail">
         <div :title="user.jid">
           <button
             class="mm-button"

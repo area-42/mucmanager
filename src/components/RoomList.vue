@@ -31,24 +31,14 @@
           <font-awesome-icon :icon="['fas', 'trash']" />
         </button>
       </div>
-      <div
-        v-if="selectedRoom"
-        class="affiliation"
-      >
+      <div v-if="selectedRoom" class="affiliation">
         Raumzugehörigkeit: {{ selectedRoom.affiliation }}
       </div>
     </div>
-    <div><hr></div>
+    <div><hr /></div>
     <div class="overflowDiv">
-      <div
-        v-for="room in roomentries"
-        :key="room.jid"
-        class="roomEntry"
-      >
-        <label
-          class="checkcontainer"
-          :title="room.jid"
-        >
+      <div v-for="room in roomentries" :key="room.jid" class="roomEntry">
+        <label class="checkcontainer" :title="room.jid">
           {{ room.name }}
           <input
             :id="room.jid"
@@ -56,7 +46,7 @@
             type="radio"
             :value="room"
             @change="selectRoom"
-          >
+          />
           <span class="radiobtn" />
         </label>
       </div>
@@ -75,10 +65,10 @@ import {
 export default {
   name: "Roomlist",
   props: {
-    "isConnected": {type: Boolean},
-    "mucDomain": {type: String, default: null},
-    "roomnameGuideline": {type: String, default: null},
-    "roomnameGuidelineDescription": {type: String, default: null}
+    isConnected: { type: Boolean },
+    mucDomain: { type: String, default: null },
+    roomnameGuideline: { type: String, default: null },
+    roomnameGuidelineDescription: { type: String, default: null }
   },
   data() {
     return {
@@ -162,7 +152,6 @@ export default {
   }
 };
 </script>
-<!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
 .roomEntry {
   font-size: 1.2vw;
