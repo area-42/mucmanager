@@ -77,7 +77,7 @@ export default {
   props: {
     "isConnected": {type: Boolean},
     "mucDomain": {type: String, default: null},
-    "roomnameGuideline": {type: Object, default: null},
+    "roomnameGuideline": {type: String, default: null},
     "roomnameGuidelineDescription": {type: String, default: null}
   },
   data() {
