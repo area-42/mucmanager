@@ -1,11 +1,11 @@
-const capitalizeName = function(str) {
+function capitalizeName(str) {
   if (str) {
     return str.replace(/(?:^|-)\S/g, a => a.toUpperCase());
   }
   return "";
-};
+}
 
-const chunk = function(array, size) {
+function chunk(array, size) {
   const chunked_arr = [];
   let index = 0;
   while (index < array.length) {
@@ -13,6 +13,12 @@ const chunk = function(array, size) {
     index += size;
   }
   return chunked_arr;
-};
+}
 
-export { capitalizeName, chunk };
+function log(message, style = "") {
+  const prefix = style ? "%c" : "";
+  /*eslint no-console: "off"*/
+  console.log(`${prefix}${new Date().toISOString()}: ${message}`, style);
+}
+
+export { capitalizeName, chunk, log };

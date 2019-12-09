@@ -1,4 +1,5 @@
 import { $build, $iq, $pres, Strophe } from "strophe.js";
+import { log } from "./utils.js";
 
 const TIMEOUT = 5000,
   xmppStatus = Strophe.Status;
@@ -99,10 +100,23 @@ function setAffiliation(roomJid, jids, affiliation) {
   return sendIQ(iq);
 }
 
-function doXmppLogin(xmppUser, xmppPass, BOSH_SERVICE, XMPP_DOMAIN, onConnect) {
+function doXmppLogin(
+  xmppUser,
+  xmppPass,
+  BOSH_SERVICE,
+  XMPP_DOMAIN,
+  onConnect,
+  debug = false
+) {
   Strophe.addNamespace("MUC_ADMIN", `${Strophe.NS.MUC}#admin`);
   Strophe.addNamespace("MUC_OWNER", `${Strophe.NS.MUC}#owner`);
   connection = new Strophe.Connection(BOSH_SERVICE);
+
+  if (debug) {
+    connection.xmlInput = body => log(body.outerHTML, "color: darkgoldenrod");
+    connection.xmlOutput = body => log(body.outerHTML, "color: darkcyan");
+  }
+
   connection.connect(
     `${xmppUser.split("@")[0]}@${XMPP_DOMAIN}/mucmanager.${Math.floor(
       Math.random() * 139749528

@@ -68,7 +68,8 @@ export default {
         this.xmppPass,
         this.boshService,
         this.xmppDomain,
-        this.onConnect
+        this.onConnect,
+        window.location.hash === "#debug"
       );
     },
     doLogout() {
