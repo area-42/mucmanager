@@ -35,7 +35,8 @@ import {
   faSync,
   faTrash,
   faUserMinus,
-  faUserPlus
+  faUserPlus,
+  faQrcode
 } from "@fortawesome/free-solid-svg-icons";
 
 library.add(
@@ -52,10 +53,15 @@ library.add(
   faSignOutAlt,
   faPlus,
   faTrash,
-  faFileExcel
+  faFileExcel,
+  faQrcode
 );
 
 Vue.component("font-awesome-icon", FontAwesomeIcon);
+
+import VModal from "vue-js-modal";
+
+Vue.use(VModal);
 
 new Vue({
   render: h => h(App)

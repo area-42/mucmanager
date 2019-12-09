@@ -1,5 +1,11 @@
 <template>
   <div class="roomEntry">
+    <modal name="muc-qrcode-modal" height="auto">
+      <div class="qrcodeModal">
+        <QrcodeVue :value="roomuri" :size="200" level="H"></QrcodeVue>
+        {{ roomuri }}
+      </div>
+    </modal>
     <div class="menuOptions">
       <div>
         <button
@@ -29,6 +35,14 @@
           @click="delRoom"
         >
           <font-awesome-icon :icon="['fas', 'trash']" />
+        </button>
+        <button
+          class="mm-button"
+          :disabled="!selectedRoom"
+          title="QR-Code für Chatraum anzeigen"
+          @click="showQRCode"
+        >
+          <font-awesome-icon :icon="['fas', 'qrcode']" />
         </button>
       </div>
       <div v-if="selectedRoom" class="affiliation">
@@ -62,8 +76,12 @@ import {
   discoverRooms,
   enterAndLeaveRoom
 } from "../xmpp_utils.js";
+import QrcodeVue from "qrcode.vue";
 export default {
   name: "Roomlist",
+  components: {
+    QrcodeVue
+  },
   props: {
     isConnected: { type: Boolean },
     mucDomain: { type: String, default: null },
@@ -73,6 +91,7 @@ export default {
   data() {
     return {
       roomentries: [],
+      roomuri: null,
       selectedRoom: null
     };
   },
@@ -148,6 +167,10 @@ export default {
           this.$emit("selectRoom", this.selectedRoom);
           loader.hide();
         });
+    },
+    showQRCode() {
+      this.roomuri = "xmpp:" + this.selectedRoom.jid + "?join";
+      this.$modal.show("muc-qrcode-modal");
     }
   }
 };
@@ -160,6 +183,10 @@ export default {
   display: flex;
   flex-direction: column;
   flex: 1;
+}
+.qrcodeModal {
+  text-align: center;
+  padding: 10px;
 }
 /* Customize the label (the container) */
 .checkcontainer {
