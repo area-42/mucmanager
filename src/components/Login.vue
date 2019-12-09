@@ -34,7 +34,7 @@
       <button
         v-else
         class="mm-button"
-        title="Ausblenden"
+        title="Einblenden"
         @click="showLogin = true"
       >
         <font-awesome-icon :icon="['fas', 'angle-double-down']" />
