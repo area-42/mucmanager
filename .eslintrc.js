@@ -8,8 +8,8 @@ module.exports = {
   extends: ["plugin:vue/essential", "@vue/prettier"],
 
   rules: {
-    "no-console": "off",
-    "no-debugger": "off",
+    "no-console": process.env.NODE_ENV === "production" ? "error" : "off",
+    "no-debugger": process.env.NODE_ENV === "production" ? "error" : "off",
     "vue/array-bracket-spacing": "error",
     "vue/arrow-spacing": "error",
     "vue/block-spacing": "error",
@@ -39,8 +39,6 @@ module.exports = {
   parserOptions: {
     parser: "babel-eslint"
   },
-
-  extends: ["plugin:vue/recommended", "@vue/prettier"],
 
   extends: ["plugin:vue/recommended", "@vue/prettier"]
 };
