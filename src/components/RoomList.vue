@@ -2,8 +2,8 @@
   <div class="roomEntry">
     <modal name="muc-qrcode-modal" height="auto">
       <div class="qrcodeModal">
-        <QrcodeVue :value="roomuri" :size="200" level="H"></QrcodeVue>
-        {{ roomuri }}
+        <QrcodeVue :value="selectedRoomUri" :size="200" level="H"></QrcodeVue>
+        {{ selectedRoomUri }}
       </div>
     </modal>
     <div class="menuOptions">
@@ -91,9 +91,17 @@ export default {
   data() {
     return {
       roomentries: [],
-      roomuri: null,
       selectedRoom: null
     };
+  },
+  computed: {
+    selectedRoomUri() {
+      if (this.selectedRoom && this.selectedRoom.jid) {
+        return "xmpp:" + this.selectedRoom.jid + "?join";
+      } else {
+        return null;
+      }
+    }
   },
   watch: {
     isConnected() {
@@ -169,7 +177,6 @@ export default {
         });
     },
     showQRCode() {
-      this.roomuri = "xmpp:" + this.selectedRoom.jid + "?join";
       this.$modal.show("muc-qrcode-modal");
     }
   }
