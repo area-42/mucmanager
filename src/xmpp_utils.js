@@ -100,6 +100,37 @@ function setAffiliation(roomJid, jids, affiliation) {
   return sendIQ(iq);
 }
 
+function setMucName(roomJid, name) {
+  const iq = $iq({
+    type: "get",
+    from: connection.jid,
+    to: roomJid
+  }).c("query", { xmlns: Strophe.NS.MUC_OWNER });
+  return sendIQ(iq).then(iq => {
+    const data = iq.querySelector("query").firstChild;
+    const iq2 = $iq({
+      type: "set",
+      from: connection.jid,
+      to: roomJid
+    })
+      .c("query", { xmlns: Strophe.NS.MUC_OWNER })
+      .c("x", { xmlns: Strophe.NS.XFORM, type: "submit" });
+    data.getElementsByTagName("field").forEach(node => {
+      if (node.getAttribute("var") === "muc#roomconfig_roomname") {
+        if (node.firstChild) {
+          node.removeChild(node.firstChild);
+        }
+        const valueElement = document.createElement("value");
+        const textNode = document.createTextNode(name);
+        valueElement.appendChild(textNode);
+        node.appendChild(valueElement);
+      }
+      iq2.cnode(node).up();
+    });
+    return sendIQ(iq2);
+  });
+}
+
 function doXmppLogin(
   xmppUser,
   xmppPass,
@@ -110,6 +141,7 @@ function doXmppLogin(
 ) {
   Strophe.addNamespace("MUC_ADMIN", `${Strophe.NS.MUC}#admin`);
   Strophe.addNamespace("MUC_OWNER", `${Strophe.NS.MUC}#owner`);
+  Strophe.addNamespace("XFORM", "jabber:x:data");
   connection = new Strophe.Connection(BOSH_SERVICE);
 
   if (debug) {
@@ -138,5 +170,6 @@ export {
   getMemberList,
   enterAndLeaveRoom,
   setAffiliation,
+  setMucName,
   xmppStatus
 };

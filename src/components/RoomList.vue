@@ -44,6 +44,18 @@
         >
           <font-awesome-icon :icon="['fas', 'qrcode']" />
         </button>
+        <button
+          class="mm-button"
+          :disabled="
+            !isConnected ||
+              !selectedRoom ||
+              selectedRoom.affiliation !== 'owner'
+          "
+          title="Raumnamen editieren"
+          @click="editMucName"
+        >
+          <font-awesome-icon :icon="['fas', 'edit']" />
+        </button>
       </div>
       <div v-if="selectedRoom" class="affiliation">
         Raumzugehörigkeit: {{ selectedRoom.affiliation }}
@@ -74,7 +86,8 @@
 import {
   destroyRoom,
   discoverRooms,
-  enterAndLeaveRoom
+  enterAndLeaveRoom,
+  setMucName
 } from "../xmpp_utils.js";
 import QrcodeVue from "qrcode.vue";
 export default {
@@ -131,21 +144,21 @@ export default {
         .finally(() => loader.hide());
     },
     addRoom() {
-      const raumName = prompt(
-        `Raumname eingeben:\n${this.roomnameGuideline_description}`
+      const roomJid = prompt(
+        `Raum-ID eingeben:\n${this.roomnameGuidelineDescription}`
       );
-      if (raumName) {
-        if (!RegExp(this.roomnameGuideline).test(raumName)) {
+      if (roomJid) {
+        if (!RegExp(this.roomnameGuideline).test(roomJid)) {
           alert(
-            `Der Raumname "${raumName}" entspricht nicht den Vorgaben:\n${this.roomnameGuideline_description}`
+            `Die Raum-ID "${roomJid}" entspricht nicht den Vorgaben:\n${this.roomnameGuidelineDescription}`
           );
         } else if (
-          this.roomentries.some(e => e.jid === `${raumName}@${this.mucDomain}`)
+          this.roomentries.some(e => e.jid === `${roomJid}@${this.mucDomain}`)
         ) {
-          alert(`Der Raum "${raumName}" existiert bereits!`);
+          alert(`Der Raum "${roomJid}" existiert bereits!`);
         } else {
           const loader = this.$loading.show();
-          enterAndLeaveRoom(`${raumName}@${this.mucDomain}`)
+          enterAndLeaveRoom(`${roomJid}@${this.mucDomain}`)
             .then(() => this.refreshRooms())
             .finally(() => loader.hide());
         }
@@ -178,6 +191,13 @@ export default {
     },
     showQRCode() {
       this.$modal.show("muc-qrcode-modal");
+    },
+    editMucName() {
+      const mucName = prompt("Neuen Raumnamen eingeben:");
+      const loader = this.$loading.show();
+      setMucName(this.selectedRoom.jid, mucName)
+        .then(() => this.refreshRooms())
+        .finally(() => loader.hide());
     }
   }
 };

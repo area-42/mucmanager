@@ -36,7 +36,8 @@ import {
   faTrash,
   faUserMinus,
   faUserPlus,
-  faQrcode
+  faQrcode,
+  faEdit
 } from "@fortawesome/free-solid-svg-icons";
 
 library.add(
@@ -54,7 +55,8 @@ library.add(
   faPlus,
   faTrash,
   faFileExcel,
-  faQrcode
+  faQrcode,
+  faEdit
 );
 
 Vue.component("font-awesome-icon", FontAwesomeIcon);
