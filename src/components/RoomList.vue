@@ -194,7 +194,10 @@ export default {
       this.$modal.show("muc-qrcode-modal");
     },
     editMucName() {
-      const mucName = prompt("Neuen Raumnamen eingeben:");
+      const mucName = prompt(
+        "Neuen Raumnamen eingeben:",
+        this.selectedRoom.name
+      );
       if (mucName != null) {
         const loader = this.$loading.show();
         setMucName(this.selectedRoom.jid, mucName)
