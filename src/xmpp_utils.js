@@ -107,7 +107,6 @@ function setMucName(roomJid, name) {
     to: roomJid
   }).c("query", { xmlns: Strophe.NS.MUC_OWNER });
   return sendIQ(iq).then(iq => {
-    const data = iq.querySelector("query").firstChild;
     const iq2 = $iq({
       type: "set",
       from: connection.jid,
@@ -115,18 +114,18 @@ function setMucName(roomJid, name) {
     })
       .c("query", { xmlns: Strophe.NS.MUC_OWNER })
       .c("x", { xmlns: Strophe.NS.XFORM, type: "submit" });
-    data.getElementsByTagName("field").forEach(node => {
-      if (node.getAttribute("var") === "muc#roomconfig_roomname") {
-        if (node.firstChild) {
-          node.removeChild(node.firstChild);
+    iq.querySelector("query")
+      .firstChild.getElementsByTagName("field")
+      .forEach(node => {
+        if (node.getAttribute("var") === "muc#roomconfig_roomname") {
+          node.childNodes.forEach(child => node.removeChild(child));
+          const valueElement = document.createElement("value");
+          const textNode = document.createTextNode(name);
+          valueElement.appendChild(textNode);
+          node.appendChild(valueElement);
         }
-        const valueElement = document.createElement("value");
-        const textNode = document.createTextNode(name);
-        valueElement.appendChild(textNode);
-        node.appendChild(valueElement);
-      }
-      iq2.cnode(node).up();
-    });
+        iq2.cnode(node).up();
+      });
     return sendIQ(iq2);
   });
 }
