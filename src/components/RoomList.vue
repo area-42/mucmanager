@@ -134,8 +134,9 @@ export default {
       discoverRooms(this.mucDomain)
         .then(rooms => {
           rooms.forEach(room => {
+            const m = room.getAttribute("name").match(/(^.*)\(.*\)$/);
             this.roomentries.push({
-              name: room.getAttribute("name"),
+              name: m === null ? name : m[1],
               jid: room.getAttribute("jid"),
               affiliation: null
             });
