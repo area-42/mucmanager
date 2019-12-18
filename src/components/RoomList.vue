@@ -194,10 +194,12 @@ export default {
     },
     editMucName() {
       const mucName = prompt("Neuen Raumnamen eingeben:");
-      const loader = this.$loading.show();
-      setMucName(this.selectedRoom.jid, mucName)
-        .then(() => this.refreshRooms())
-        .finally(() => loader.hide());
+      if (mucName != null) {
+        const loader = this.$loading.show();
+        setMucName(this.selectedRoom.jid, mucName)
+          .then(() => this.refreshRooms())
+          .finally(() => loader.hide());
+      }
     }
   }
 };
