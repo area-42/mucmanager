@@ -38,7 +38,7 @@
         </button>
         <button
           class="mm-button"
-          :disabled="!selectedRoom"
+          :disabled="!isConnected || !selectedRoom"
           title="QR-Code für Chatraum anzeigen"
           @click="showQRCode"
         >
