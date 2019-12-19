@@ -1,6 +1,6 @@
 <template>
   <div v-if="appConfig" id="app">
-    <v-dialog/>
+    <v-dialog />
     <vue-progress-bar />
     <div class="login">
       <Login
