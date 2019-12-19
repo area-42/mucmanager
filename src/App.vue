@@ -34,6 +34,7 @@
           ref="memberlist"
           :selected-room="selectedRoom"
           :is-connected="isConnected"
+          :xmpp-domain="appConfig.XMPP_DOMAIN"
         />
       </div>
     </div>

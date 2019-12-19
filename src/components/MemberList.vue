@@ -20,6 +20,14 @@
         </button>
         <button
           class="mm-button"
+          :disabled="!selectedRoom || !isConnected"
+          title="Nutzer mit bekannter jid manuell hinzufügen"
+          @click="addUserManual"
+        >
+          <font-awesome-icon :icon="['fas', 'plus']" />
+        </button>
+        <button
+          class="mm-button"
           :disabled="
             !selectedRoom ||
               !['owner', 'admin'].includes(selectedRoom.affiliation) ||
@@ -73,7 +81,8 @@ export default {
   name: "Memberlist",
   props: {
     selectedRoom: { type: Object, default: null },
-    isConnected: { type: Boolean }
+    isConnected: { type: Boolean },
+    xmppDomain: { type: String, default: null }
   },
   data() {
     return {
@@ -188,6 +197,24 @@ export default {
         )
         .map(e => e.jid);
       this.setAffiliationForJids(jids, "member");
+    },
+    addUserManual() {
+      const userJid = prompt(
+        "Jid des neuen Nutzers eingeben:",
+        "@" + this.xmppDomain
+      );
+      if (userJid) {
+        if (/^[^@/<>'\"]+@[^@/<>'\"]+$/.test(userJid)) {
+          const loader = this.$loading.show();
+          setAffiliation(this.selectedRoom.jid, [userJid], "member")
+            .then(() => {
+              this.findRoomMembers();
+            })
+            .finally(() => loader.hide());
+        } else {
+          alert("Die eingebene jid ist ungültig.");
+        }
+      }
     },
     outputExcel() {
       const data = [],
