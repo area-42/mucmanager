@@ -1,5 +1,6 @@
 <template>
   <div v-if="appConfig" id="app">
+    <v-dialog/>
     <vue-progress-bar />
     <div class="login">
       <Login
@@ -35,6 +36,7 @@
           :selected-room="selectedRoom"
           :is-connected="isConnected"
           :xmpp-domain="appConfig.XMPP_DOMAIN"
+          :xmpp-user="xmppUser"
         />
       </div>
     </div>
@@ -57,7 +59,8 @@ export default {
     return {
       appConfig: null,
       selectedRoom: null,
-      isConnected: false
+      isConnected: false,
+      xmppUser: null
     };
   },
   created() {
@@ -70,8 +73,9 @@ export default {
     onSelectRoom(room) {
       this.selectedRoom = room;
     },
-    onConnStatusChanged(isConnected) {
+    onConnStatusChanged(isConnected, xmppUser) {
       this.isConnected = isConnected;
+      this.xmppUser = xmppUser;
     },
     onAddUsers(users) {
       this.$refs.memberlist.addMembers(users);

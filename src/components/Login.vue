@@ -63,6 +63,7 @@ export default {
   },
   methods: {
     doLogin() {
+      this.xmppUser = this.xmppUser.toLowerCase();
       doXmppLogin(
         this.xmppUser,
         this.xmppPass,
@@ -77,7 +78,8 @@ export default {
     },
     onConnect(status) {
       this.isConnected = status === xmppStatus.CONNECTED;
-      this.$emit("connStatusChanged", this.isConnected);
+      const xmppUser = status === xmppStatus.CONNECTED ? this.xmppUser : null;
+      this.$emit("connStatusChanged", this.isConnected, xmppUser);
       this.connStatus = status;
       if (status === xmppStatus.CONNFAIL) {
         alert("Login fehlgeschlagen");

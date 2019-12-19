@@ -57,6 +57,14 @@
           >
             <font-awesome-icon :icon="['fas', 'minus-circle']" />
           </button>
+          <button
+            class="mm-button"
+            :disabled="!isConnected || !canEditAffiliation(member)"
+            title="Zugehörigkeit editieren"
+            @click="editAffiliation(member)"
+          >
+            <font-awesome-icon :icon="['fas', 'edit']" />
+          </button>
           {{ member.memberjid }}
         </div>
       </div>
@@ -82,7 +90,8 @@ export default {
   props: {
     selectedRoom: { type: Object, default: null },
     isConnected: { type: Boolean },
-    xmppDomain: { type: String, default: null }
+    xmppDomain: { type: String, default: null },
+    xmppUser: { type: String, default: null }
   },
   data() {
     return {
@@ -205,16 +214,53 @@ export default {
       );
       if (userJid) {
         if (/^[^@/<>'\"]+@[^@/<>'\"]+$/.test(userJid)) {
-          const loader = this.$loading.show();
-          setAffiliation(this.selectedRoom.jid, [userJid], "member")
-            .then(() => {
-              this.findRoomMembers();
-            })
-            .finally(() => loader.hide());
+          this.setAffiliationForJids([userJid], "member");
         } else {
           alert("Die eingebene jid ist ungültig.");
         }
       }
+    },
+    canEditAffiliation(member) {
+      return (
+        this.selectedRoom.affiliation == "owner" &&
+        this.xmppUser + "@" + this.xmppDomain !== member.memberjid
+      );
+    },
+    editAffiliation(member) {
+      this.$modal.show("dialog", {
+        title: "Zugehörigkeit auswählen",
+        text:
+          "Bitte wählen Sie die neue Zugehörigkeit für <strong>" +
+          member.memberjid +
+          "</strong> aus.",
+        buttons: [
+          {
+            title: "Abbrechen",
+            default: true
+          },
+          {
+            title: "Owner",
+            handler: () => {
+              this.$modal.hide("dialog");
+              this.setAffiliationForJids([member.memberjid], "owner");
+            }
+          },
+          {
+            title: "Admin",
+            handler: () => {
+              this.$modal.hide("dialog");
+              this.setAffiliationForJids([member.memberjid], "admin");
+            }
+          },
+          {
+            title: "Member",
+            handler: () => {
+              this.$modal.hide("dialog");
+              this.setAffiliationForJids([member.memberjid], "member");
+            }
+          }
+        ]
+      });
     },
     outputExcel() {
       const data = [],
