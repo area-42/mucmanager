@@ -135,11 +135,13 @@ export default {
         .then(rooms => {
           rooms.forEach(room => {
             const m = room.getAttribute("name").match(/(^.*)\s\(.*\)$/);
-            this.roomentries.push({
-              name: m === null ? name : m[1],
-              jid: room.getAttribute("jid"),
-              affiliation: null
-            });
+            if (m && m[1]) {
+              this.roomentries.push({
+                name: m === null ? name : m[1],
+                jid: room.getAttribute("jid"),
+                affiliation: null
+              });
+            }
           });
         })
         .finally(() => loader.hide());
