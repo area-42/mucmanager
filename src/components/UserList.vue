@@ -1,11 +1,5 @@
 <template>
   <div class="userEntry">
-    <modal name="user-qrcode-modal" height="auto">
-      <div class="qrcodeModal">
-        <QrcodeVue :value="userUri" :size="200" level="H"></QrcodeVue>
-        {{ userUri }}
-      </div>
-    </modal>
     <div class="menuOptions">
       <div>
         <button
@@ -94,13 +88,9 @@
   </div>
 </template>
 <script>
-import QrcodeVue from "qrcode.vue";
 const LIMITENTRIES = 500;
 export default {
   name: "Userlist",
-  components: {
-    QrcodeVue
-  },
   props: {
     selectedRoom: { type: Object, default: null },
     isConnected: { type: Boolean },
@@ -110,7 +100,6 @@ export default {
   data() {
     return {
       userentries: [],
-      userUri: null,
       currentPage: 1,
       filterVal: "",
       lastPage: 1
@@ -162,12 +151,13 @@ export default {
       }
     },
     showQRCode(user) {
-      this.userUri =
-        "xmpp:" +
-        user.jid +
-        "?roster;name=" +
-        encodeURIComponent(user.givenName + " " + user.sn);
-      this.$modal.show("user-qrcode-modal");
+      this.$modal.show("qrcode-modal", {
+        text:
+          "xmpp:" +
+          user.jid +
+          "?roster;name=" +
+          encodeURIComponent(user.givenName + " " + user.sn)
+      });
     }
   }
 };
@@ -197,9 +187,5 @@ export default {
   background-color: white;
   flex: 1 1 0;
   overflow-y: auto;
-}
-.qrcodeModal {
-  text-align: center;
-  padding: 10px;
 }
 </style>

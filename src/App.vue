@@ -2,6 +2,7 @@
   <div v-if="appConfig" id="app">
     <v-dialog />
     <vue-progress-bar />
+    <QrcodeModal />
     <div class="login">
       <Login
         :bosh-service="appConfig.BOSH_SERVICE"
@@ -47,13 +48,15 @@ import UserList from "./components/UserList";
 import Login from "./components/Login";
 import RoomList from "./components/RoomList";
 import MemberList from "./components/MemberList";
+import QrcodeModal from "./components/QrcodeModal";
 export default {
   name: "App",
   components: {
     UserList,
     Login,
     RoomList,
-    MemberList
+    MemberList,
+    QrcodeModal
   },
   data() {
     return {

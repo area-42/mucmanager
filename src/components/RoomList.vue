@@ -1,11 +1,5 @@
 <template>
   <div class="roomEntry">
-    <modal name="muc-qrcode-modal" height="auto">
-      <div class="qrcodeModal">
-        <QrcodeVue :value="selectedRoomUri" :size="200" level="H"></QrcodeVue>
-        {{ selectedRoomUri }}
-      </div>
-    </modal>
     <div class="menuOptions">
       <div>
         <button
@@ -89,12 +83,8 @@ import {
   enterAndLeaveRoom,
   setMucName
 } from "../xmpp_utils.js";
-import QrcodeVue from "qrcode.vue";
 export default {
   name: "Roomlist",
-  components: {
-    QrcodeVue
-  },
   props: {
     isConnected: { type: Boolean },
     mucDomain: { type: String, default: null },
@@ -106,15 +96,6 @@ export default {
       roomentries: [],
       selectedRoom: null
     };
-  },
-  computed: {
-    selectedRoomUri() {
-      if (this.selectedRoom && this.selectedRoom.jid) {
-        return "xmpp:" + this.selectedRoom.jid + "?join";
-      } else {
-        return null;
-      }
-    }
   },
   watch: {
     isConnected() {
@@ -193,7 +174,9 @@ export default {
         });
     },
     showQRCode() {
-      this.$modal.show("muc-qrcode-modal");
+      this.$modal.show("qrcode-modal", {
+        text: "xmpp:" + this.selectedRoom.jid + "?join"
+      });
     },
     editMucName() {
       const mucName = prompt(
@@ -218,10 +201,6 @@ export default {
   display: flex;
   flex-direction: column;
   flex: 1;
-}
-.qrcodeModal {
-  text-align: center;
-  padding: 10px;
 }
 /* Customize the label (the container) */
 .checkcontainer {
