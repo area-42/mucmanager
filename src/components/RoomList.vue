@@ -24,6 +24,7 @@ export default {
       if (this.isConnected) {
         this.refreshRooms();
       } else {
+        this.selectedRoom = null;
         this.roomentries = [];
       }
     }
