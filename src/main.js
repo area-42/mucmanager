@@ -11,6 +11,7 @@ import {
   faAngleDoubleRight,
   faAngleDoubleUp,
   faFileExcel,
+  faFileImport,
   faMinusCircle,
   faPlus,
   faPlusCircle,
@@ -62,6 +63,7 @@ if (ua.indexOf("MSIE") >= 0 || ua.indexOf("Trident") >= 0) {
     faPlus,
     faTrash,
     faFileExcel,
+    faFileImport,
     faQrcode,
     faEdit
   );

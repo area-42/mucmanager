@@ -2,6 +2,7 @@
 import { getMemberList, setAffiliation } from "../xmpp_utils.js";
 import { capitalizeName, chunk } from "../utils.js";
 import zipcelx from "zipcelx";
+import readXlsxFile from "read-excel-file";
 import dayjs from "dayjs";
 import "dayjs/locale/de";
 dayjs.locale("de");
@@ -186,6 +187,33 @@ export default {
         ]
       });
     },
+    openFileInput() {
+      this.$refs.fileInput.click();
+    },
+    importExcel() {
+      const file = this.$refs.fileInput.files[0];
+      if (file) {
+        readXlsxFile(file).then(rows => {
+          const jids = rows
+            .map(x => x[2] && x[2].trim())
+            .filter(x => /^[^@/<>'\"]+@[^@/<>'\"]+$/.test(x))
+            .filter(x => !this.memberentries.some(e => e.memberjid === x));
+          if (jids.length > 0) {
+            if (
+              confirm(
+                `Wirklich ${jids.length} ` +
+                  `Mitglieder zu diesem Raum hinzufügen?`
+              )
+            ) {
+              this.setAffiliationForJids(jids, "member");
+            }
+          } else {
+            alert("Keine neuen Mitglieder gefunden.");
+          }
+          this.$refs.fileInput.value = "";
+        });
+      }
+    },
     outputExcel() {
       const data = [],
             config = {
@@ -249,9 +277,32 @@ export default {
         >
           <font-awesome-icon :icon="['fas', 'file-excel']" />
         </button>
+        <input
+          ref="fileInput"
+          type="file"
+          accept=".xls,.xlsx"
+          hidden
+          @change="importExcel"
+        />
         <button
           class="mm-button"
-          :disabled="!selectedRoom || !isConnected"
+          :disabled="
+            !selectedRoom ||
+              !['owner', 'admin'].includes(selectedRoom.affiliation) ||
+              !isConnected
+          "
+          title="Nutzer aus Excel-Datei importieren"
+          @click="openFileInput"
+        >
+          <font-awesome-icon :icon="['fas', 'file-import']" />
+        </button>
+        <button
+          class="mm-button"
+          :disabled="
+            !selectedRoom ||
+              !['owner', 'admin'].includes(selectedRoom.affiliation) ||
+              !isConnected
+          "
           title="Nutzer mit bekannter jid manuell hinzufügen"
           @click="addUserManual"
         >
