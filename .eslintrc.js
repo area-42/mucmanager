@@ -33,12 +33,26 @@ module.exports = {
     "vue/v-on-function-call": "error",
     "vue/v-slot-style": "error",
     "vue/valid-v-slot": "error",
-    "vue/match-component-file-name": "error"
+    "vue/match-component-file-name": "error",
+    "vue/component-definition-name-casing": "error",
+    "vue/component-tags-order": "error",
+    "vue/max-len": "error",
+    "vue/no-deprecated-slot-attribute": "error",
+    "vue/no-deprecated-slot-scope-attribute": "error",
+    "vue/no-irregular-whitespace": "error",
+    "vue/no-reserved-component-names": "error",
+    "vue/no-static-inline-styles": "error",
+    "vue/no-unsupported-features": "error",
+    "vue/require-name-property": "error",
+    "vue/static-class-names-order": "error",
+    "vue/valid-v-bind-sync": "error"
   },
 
   parserOptions: {
     parser: "babel-eslint"
   },
+
+  extends: ["plugin:vue/recommended", "@vue/prettier"],
 
   extends: ["plugin:vue/recommended", "@vue/prettier"]
 };

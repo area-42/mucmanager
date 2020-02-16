@@ -1,79 +1,3 @@
-<template>
-  <div class="memberEntry">
-    <div class="menuOptions">
-      <div>
-        <button
-          class="mm-button"
-          :disabled="!selectedRoom || !isConnected"
-          title="Liste aktualisieren"
-          @click="findRoomMembers"
-        >
-          <font-awesome-icon :icon="['fas', 'sync']" />
-        </button>
-        <button
-          class="mm-button"
-          :disabled="!selectedRoom || !isConnected || memberentries.length < 1"
-          title="Liste als Excel-Datei ausgeben"
-          @click="outputExcel"
-        >
-          <font-awesome-icon :icon="['fas', 'file-excel']" />
-        </button>
-        <button
-          class="mm-button"
-          :disabled="!selectedRoom || !isConnected"
-          title="Nutzer mit bekannter jid manuell hinzufügen"
-          @click="addUserManual"
-        >
-          <font-awesome-icon :icon="['fas', 'plus']" />
-        </button>
-        <button
-          class="mm-button"
-          :disabled="
-            !selectedRoom ||
-              !['owner', 'admin'].includes(selectedRoom.affiliation) ||
-              !isConnected
-          "
-          title="Alle entfernen"
-          @click="delAllMembers"
-        >
-          <font-awesome-icon :icon="['fas', 'user-minus']" />
-        </button>
-      </div>
-    </div>
-    <div><hr /></div>
-    <div class="overflowDiv">
-      <div v-for="member in orderedMemberentries" :key="member.memberjid">
-        <div class="memberEntryDetail" :title="member.memberaffiliation">
-          <button
-            class="mm-button"
-            :disabled="
-              !selectedRoom ||
-                !['owner', 'admin'].includes(selectedRoom.affiliation) ||
-                !isConnected ||
-                member.memberaffiliation !== 'member'
-            "
-            title="Anwender entfernen"
-            @click="delMember(member.memberjid)"
-          >
-            <font-awesome-icon :icon="['fas', 'minus-circle']" />
-          </button>
-          <button
-            class="mm-button"
-            :disabled="!isConnected || !canEditAffiliation(member)"
-            title="Zugehörigkeit editieren"
-            @click="editAffiliation(member)"
-          >
-            <font-awesome-icon :icon="['fas', 'edit']" />
-          </button>
-          {{ member.memberjid }}
-        </div>
-      </div>
-    </div>
-    <div class="title">
-      Mitglieder des Raumes
-    </div>
-  </div>
-</template>
 <script>
 import { getMemberList, setAffiliation } from "../xmpp_utils.js";
 import { capitalizeName, chunk } from "../utils.js";
@@ -305,6 +229,82 @@ export default {
   }
 };
 </script>
+<template>
+  <div class="memberEntry">
+    <div class="menuOptions">
+      <div>
+        <button
+          class="mm-button"
+          :disabled="!selectedRoom || !isConnected"
+          title="Liste aktualisieren"
+          @click="findRoomMembers"
+        >
+          <font-awesome-icon :icon="['fas', 'sync']" />
+        </button>
+        <button
+          class="mm-button"
+          :disabled="!selectedRoom || !isConnected || memberentries.length < 1"
+          title="Liste als Excel-Datei ausgeben"
+          @click="outputExcel"
+        >
+          <font-awesome-icon :icon="['fas', 'file-excel']" />
+        </button>
+        <button
+          class="mm-button"
+          :disabled="!selectedRoom || !isConnected"
+          title="Nutzer mit bekannter jid manuell hinzufügen"
+          @click="addUserManual"
+        >
+          <font-awesome-icon :icon="['fas', 'plus']" />
+        </button>
+        <button
+          class="mm-button"
+          :disabled="
+            !selectedRoom ||
+              !['owner', 'admin'].includes(selectedRoom.affiliation) ||
+              !isConnected
+          "
+          title="Alle entfernen"
+          @click="delAllMembers"
+        >
+          <font-awesome-icon :icon="['fas', 'user-minus']" />
+        </button>
+      </div>
+    </div>
+    <div><hr /></div>
+    <div class="overflowDiv">
+      <div v-for="member in orderedMemberentries" :key="member.memberjid">
+        <div class="memberEntryDetail" :title="member.memberaffiliation">
+          <button
+            class="mm-button"
+            :disabled="
+              !selectedRoom ||
+                !['owner', 'admin'].includes(selectedRoom.affiliation) ||
+                !isConnected ||
+                member.memberaffiliation !== 'member'
+            "
+            title="Anwender entfernen"
+            @click="delMember(member.memberjid)"
+          >
+            <font-awesome-icon :icon="['fas', 'minus-circle']" />
+          </button>
+          <button
+            class="mm-button"
+            :disabled="!isConnected || !canEditAffiliation(member)"
+            title="Zugehörigkeit editieren"
+            @click="editAffiliation(member)"
+          >
+            <font-awesome-icon :icon="['fas', 'edit']" />
+          </button>
+          {{ member.memberjid }}
+        </div>
+      </div>
+    </div>
+    <div class="title">
+      Mitglieder des Raumes
+    </div>
+  </div>
+</template>
 <style scoped>
 .memberEntry {
   font-size: 1.2vw;

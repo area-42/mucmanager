@@ -1,3 +1,80 @@
+<script>
+const LIMITENTRIES = 500;
+export default {
+  name: "Userlist",
+  props: {
+    selectedRoom: { type: Object, default: null },
+    isConnected: { type: Boolean },
+    baseurl: { type: String, default: null },
+    apikey: { type: String, default: null }
+  },
+  data() {
+    return {
+      userentries: [],
+      currentPage: 1,
+      filterVal: "",
+      lastPage: 1
+    };
+  },
+  watch: {
+    currentPage() {
+      this.loadUserList();
+    }
+  },
+  created() {
+    this.resetAndReload();
+  },
+  methods: {
+    loadUserList() {
+      let fetchUrl =
+        `${this.baseurl}?api_key=${this.apikey}` +
+        `&size=${LIMITENTRIES}&page=${this.currentPage}`;
+      if (this.filterVal !== "") {
+        fetchUrl += `&filterVal=${this.filterVal}`;
+      }
+      const loader = this.$loading.show();
+      fetch(fetchUrl)
+        .then(res => res.json())
+        .then(json => {
+          this.userentries = json.data;
+          this.lastPage = json.last_page;
+        })
+        .finally(() => {
+          this.userentries.map(entry => (entry.jid = entry.jid.toLowerCase()));
+          loader.hide();
+        });
+    },
+    filterUserResetPage() {
+      this.currentPage = 1;
+      this.loadUserList();
+    },
+    resetAndReload() {
+      if (this.baseurl && this.apikey) {
+        this.currentPage = 1;
+        this.filterVal = "";
+        this.loadUserList();
+      }
+    },
+    addUser(user) {
+      this.$emit("addUsers", [user]);
+    },
+    addAllUsers() {
+      if (confirm("Wirklich alle Benutzer zu diesem Raum hinzufügen?")) {
+        this.$emit("addUsers", this.userentries);
+      }
+    },
+    showQRCode(user) {
+      this.$modal.show("qrcode-modal", {
+        text:
+          "xmpp:" +
+          user.jid +
+          "?roster;name=" +
+          encodeURIComponent(user.givenName + " " + user.sn)
+      });
+    }
+  }
+};
+</script>
 <template>
   <div class="userEntry">
     <div class="menuOptions">
@@ -87,81 +164,6 @@
     </div>
   </div>
 </template>
-<script>
-const LIMITENTRIES = 500;
-export default {
-  name: "Userlist",
-  props: {
-    selectedRoom: { type: Object, default: null },
-    isConnected: { type: Boolean },
-    baseurl: { type: String, default: null },
-    apikey: { type: String, default: null }
-  },
-  data() {
-    return {
-      userentries: [],
-      currentPage: 1,
-      filterVal: "",
-      lastPage: 1
-    };
-  },
-  watch: {
-    currentPage() {
-      this.loadUserList();
-    }
-  },
-  created() {
-    this.resetAndReload();
-  },
-  methods: {
-    loadUserList() {
-      let fetchUrl = `${this.baseurl}?api_key=${this.apikey}&size=${LIMITENTRIES}&page=${this.currentPage}`;
-      if (this.filterVal !== "") {
-        fetchUrl += `&filterVal=${this.filterVal}`;
-      }
-      const loader = this.$loading.show();
-      fetch(fetchUrl)
-        .then(res => res.json())
-        .then(json => {
-          this.userentries = json.data;
-          this.lastPage = json.last_page;
-        })
-        .finally(() => {
-          this.userentries.map(entry => (entry.jid = entry.jid.toLowerCase()));
-          loader.hide();
-        });
-    },
-    filterUserResetPage() {
-      this.currentPage = 1;
-      this.loadUserList();
-    },
-    resetAndReload() {
-      if (this.baseurl && this.apikey) {
-        this.currentPage = 1;
-        this.filterVal = "";
-        this.loadUserList();
-      }
-    },
-    addUser(user) {
-      this.$emit("addUsers", [user]);
-    },
-    addAllUsers() {
-      if (confirm("Wirklich alle Benutzer zu diesem Raum hinzufügen?")) {
-        this.$emit("addUsers", this.userentries);
-      }
-    },
-    showQRCode(user) {
-      this.$modal.show("qrcode-modal", {
-        text:
-          "xmpp:" +
-          user.jid +
-          "?roster;name=" +
-          encodeURIComponent(user.givenName + " " + user.sn)
-      });
-    }
-  }
-};
-</script>
 <style scoped>
 .userEntry {
   font-size: 1.2vw;

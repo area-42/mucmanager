@@ -1,50 +1,3 @@
-<template>
-  <div>
-    <div v-if="showLogin" class="loginDiv">
-      <span>Bitte anmelden</span>
-      <input v-model="xmppUser" class="loginInput" placeholder="vorname.name" />
-      <input
-        v-model="xmppPass"
-        class="loginInput"
-        placeholder="Kennwort"
-        type="password"
-        @keyup.enter="doLogin"
-      />
-      <button
-        v-if="isConnected"
-        class="mm-button"
-        title="Logout"
-        @click="doLogout"
-      >
-        <font-awesome-icon :icon="['fas', 'sign-out-alt']" />
-      </button>
-      <button v-else class="mm-button" title="Login" @click="doLogin">
-        <font-awesome-icon :icon="['fas', 'sign-in-alt']" />
-      </button>
-    </div>
-    <span>
-      <button
-        v-if="showLogin"
-        class="mm-button"
-        title="Ausblenden"
-        @click="showLogin = false"
-      >
-        <font-awesome-icon :icon="['fas', 'angle-double-up']" />
-      </button>
-      <button
-        v-else
-        class="mm-button"
-        title="Einblenden"
-        @click="showLogin = true"
-      >
-        <font-awesome-icon :icon="['fas', 'angle-double-down']" />
-      </button>
-    </span>
-    <div class="titleApp">
-      MucManager
-    </div>
-  </div>
-</template>
 <script>
 import { doXmppLogin, doXmppLogout, xmppStatus } from "../xmpp_utils.js";
 export default {
@@ -101,6 +54,53 @@ export default {
   }
 };
 </script>
+<template>
+  <div>
+    <div v-if="showLogin" class="loginDiv">
+      <span>Bitte anmelden</span>
+      <input v-model="xmppUser" class="loginInput" placeholder="vorname.name" />
+      <input
+        v-model="xmppPass"
+        class="loginInput"
+        placeholder="Kennwort"
+        type="password"
+        @keyup.enter="doLogin"
+      />
+      <button
+        v-if="isConnected"
+        class="mm-button"
+        title="Logout"
+        @click="doLogout"
+      >
+        <font-awesome-icon :icon="['fas', 'sign-out-alt']" />
+      </button>
+      <button v-else class="mm-button" title="Login" @click="doLogin">
+        <font-awesome-icon :icon="['fas', 'sign-in-alt']" />
+      </button>
+    </div>
+    <span>
+      <button
+        v-if="showLogin"
+        class="mm-button"
+        title="Ausblenden"
+        @click="showLogin = false"
+      >
+        <font-awesome-icon :icon="['fas', 'angle-double-up']" />
+      </button>
+      <button
+        v-else
+        class="mm-button"
+        title="Einblenden"
+        @click="showLogin = true"
+      >
+        <font-awesome-icon :icon="['fas', 'angle-double-down']" />
+      </button>
+    </span>
+    <div class="titleApp">
+      MucManager
+    </div>
+  </div>
+</template>
 <style scoped>
 .loginInput {
   padding: 5px;

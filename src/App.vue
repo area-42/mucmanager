@@ -1,3 +1,46 @@
+<script>
+import UserList from "./components/UserList";
+import Login from "./components/Login";
+import RoomList from "./components/RoomList";
+import MemberList from "./components/MemberList";
+import QrcodeModal from "./components/QrcodeModal";
+export default {
+  name: "App",
+  components: {
+    UserList,
+    Login,
+    RoomList,
+    MemberList,
+    QrcodeModal
+  },
+  data() {
+    return {
+      appConfig: null,
+      selectedRoom: null,
+      isConnected: false,
+      xmppUser: null
+    };
+  },
+  created() {
+    fetch("./config/runtime.json")
+      .then(res => res.json())
+      .then(json => (this.appConfig = json));
+  },
+
+  methods: {
+    onSelectRoom(room) {
+      this.selectedRoom = room;
+    },
+    onConnStatusChanged(isConnected, xmppUser) {
+      this.isConnected = isConnected;
+      this.xmppUser = xmppUser;
+    },
+    onAddUsers(users) {
+      this.$refs.memberlist.addMembers(users);
+    }
+  }
+};
+</script>
 <template>
   <div v-if="appConfig" id="app">
     <v-dialog />
@@ -43,49 +86,6 @@
     </div>
   </div>
 </template>
-<script>
-import UserList from "./components/UserList";
-import Login from "./components/Login";
-import RoomList from "./components/RoomList";
-import MemberList from "./components/MemberList";
-import QrcodeModal from "./components/QrcodeModal";
-export default {
-  name: "App",
-  components: {
-    UserList,
-    Login,
-    RoomList,
-    MemberList,
-    QrcodeModal
-  },
-  data() {
-    return {
-      appConfig: null,
-      selectedRoom: null,
-      isConnected: false,
-      xmppUser: null
-    };
-  },
-  created() {
-    fetch("./config/runtime.json")
-      .then(res => res.json())
-      .then(json => (this.appConfig = json));
-  },
-
-  methods: {
-    onSelectRoom(room) {
-      this.selectedRoom = room;
-    },
-    onConnStatusChanged(isConnected, xmppUser) {
-      this.isConnected = isConnected;
-      this.xmppUser = xmppUser;
-    },
-    onAddUsers(users) {
-      this.$refs.memberlist.addMembers(users);
-    }
-  }
-};
-</script>
 <style>
 #app {
   font-family: "Avenir", Helvetica, Arial, sans-serif;

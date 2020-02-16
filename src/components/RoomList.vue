@@ -1,3 +1,121 @@
+<script>
+import {
+  destroyRoom,
+  discoverRooms,
+  enterAndLeaveRoom,
+  setMucName
+} from "../xmpp_utils.js";
+export default {
+  name: "Roomlist",
+  props: {
+    isConnected: { type: Boolean },
+    mucDomain: { type: String, default: null },
+    roomnameGuideline: { type: String, default: null },
+    roomnameGuidelineDescription: { type: String, default: null }
+  },
+  data() {
+    return {
+      roomentries: [],
+      selectedRoom: null
+    };
+  },
+  watch: {
+    isConnected() {
+      if (this.isConnected) {
+        this.refreshRooms();
+      } else {
+        this.roomentries = [];
+      }
+    }
+  },
+  methods: {
+    refreshRooms() {
+      this.selectedRoom = null;
+      this.$emit("selectRoom", this.selectedRoom);
+      this.roomentries = [];
+      const loader = this.$loading.show();
+      discoverRooms(this.mucDomain)
+        .then(rooms => {
+          rooms.forEach(room => {
+            const m = room.getAttribute("name").match(/(^.*)\s\(.*\)$/);
+            if (m && m[1]) {
+              this.roomentries.push({
+                name: m === null ? name : m[1],
+                jid: room.getAttribute("jid"),
+                affiliation: null
+              });
+            }
+          });
+        })
+        .finally(() => loader.hide());
+    },
+    addRoom() {
+      const roomJid = prompt(
+        `Raum-ID eingeben:\n${this.roomnameGuidelineDescription}`
+      );
+      if (roomJid) {
+        if (!RegExp(this.roomnameGuideline).test(roomJid)) {
+          alert(
+            `Die Raum-ID "${roomJid}" entspricht nicht den Vorgaben:\n` +
+              `${this.roomnameGuidelineDescription}`
+          );
+        } else if (
+          this.roomentries.some(e => e.jid === `${roomJid}@${this.mucDomain}`)
+        ) {
+          alert(`Der Raum "${roomJid}" existiert bereits!`);
+        } else {
+          const loader = this.$loading.show();
+          enterAndLeaveRoom(`${roomJid}@${this.mucDomain}`)
+            .then(() => this.refreshRooms())
+            .finally(() => loader.hide());
+        }
+      }
+    },
+    delRoom() {
+      if (confirm("Raum wirklich löschen?")) {
+        const loader = this.$loading.show();
+        destroyRoom(this.selectedRoom.jid)
+          .then(() => {
+            this.refreshRooms();
+          })
+          .finally(() => loader.hide());
+        this.selectedRoom = null;
+        this.$emit("selectRoom", this.selectedRoom);
+      }
+    },
+    selectRoom() {
+      const loader = this.$loading.show();
+      enterAndLeaveRoom(this.selectedRoom.jid)
+        .then(presence => {
+          this.selectedRoom.affiliation = presence
+            .querySelector("x item")
+            .getAttribute("affiliation");
+        })
+        .finally(() => {
+          this.$emit("selectRoom", this.selectedRoom);
+          loader.hide();
+        });
+    },
+    showQRCode() {
+      this.$modal.show("qrcode-modal", {
+        text: "xmpp:" + this.selectedRoom.jid + "?join"
+      });
+    },
+    editMucName() {
+      const mucName = prompt(
+        "Neuen Raumnamen eingeben:",
+        this.selectedRoom.name
+      );
+      if (mucName != null) {
+        const loader = this.$loading.show();
+        setMucName(this.selectedRoom.jid, mucName)
+          .then(() => this.refreshRooms())
+          .finally(() => loader.hide());
+      }
+    }
+  }
+};
+</script>
 <template>
   <div class="roomEntry">
     <div class="menuOptions">
@@ -76,123 +194,6 @@
     </div>
   </div>
 </template>
-<script>
-import {
-  destroyRoom,
-  discoverRooms,
-  enterAndLeaveRoom,
-  setMucName
-} from "../xmpp_utils.js";
-export default {
-  name: "Roomlist",
-  props: {
-    isConnected: { type: Boolean },
-    mucDomain: { type: String, default: null },
-    roomnameGuideline: { type: String, default: null },
-    roomnameGuidelineDescription: { type: String, default: null }
-  },
-  data() {
-    return {
-      roomentries: [],
-      selectedRoom: null
-    };
-  },
-  watch: {
-    isConnected() {
-      if (this.isConnected) {
-        this.refreshRooms();
-      } else {
-        this.roomentries = [];
-      }
-    }
-  },
-  methods: {
-    refreshRooms() {
-      this.selectedRoom = null;
-      this.$emit("selectRoom", this.selectedRoom);
-      this.roomentries = [];
-      const loader = this.$loading.show();
-      discoverRooms(this.mucDomain)
-        .then(rooms => {
-          rooms.forEach(room => {
-            const m = room.getAttribute("name").match(/(^.*)\s\(.*\)$/);
-            if (m && m[1]) {
-              this.roomentries.push({
-                name: m === null ? name : m[1],
-                jid: room.getAttribute("jid"),
-                affiliation: null
-              });
-            }
-          });
-        })
-        .finally(() => loader.hide());
-    },
-    addRoom() {
-      const roomJid = prompt(
-        `Raum-ID eingeben:\n${this.roomnameGuidelineDescription}`
-      );
-      if (roomJid) {
-        if (!RegExp(this.roomnameGuideline).test(roomJid)) {
-          alert(
-            `Die Raum-ID "${roomJid}" entspricht nicht den Vorgaben:\n${this.roomnameGuidelineDescription}`
-          );
-        } else if (
-          this.roomentries.some(e => e.jid === `${roomJid}@${this.mucDomain}`)
-        ) {
-          alert(`Der Raum "${roomJid}" existiert bereits!`);
-        } else {
-          const loader = this.$loading.show();
-          enterAndLeaveRoom(`${roomJid}@${this.mucDomain}`)
-            .then(() => this.refreshRooms())
-            .finally(() => loader.hide());
-        }
-      }
-    },
-    delRoom() {
-      if (confirm("Raum wirklich löschen?")) {
-        const loader = this.$loading.show();
-        destroyRoom(this.selectedRoom.jid)
-          .then(() => {
-            this.refreshRooms();
-          })
-          .finally(() => loader.hide());
-        this.selectedRoom = null;
-        this.$emit("selectRoom", this.selectedRoom);
-      }
-    },
-    selectRoom() {
-      const loader = this.$loading.show();
-      enterAndLeaveRoom(this.selectedRoom.jid)
-        .then(presence => {
-          this.selectedRoom.affiliation = presence
-            .querySelector("x item")
-            .getAttribute("affiliation");
-        })
-        .finally(() => {
-          this.$emit("selectRoom", this.selectedRoom);
-          loader.hide();
-        });
-    },
-    showQRCode() {
-      this.$modal.show("qrcode-modal", {
-        text: "xmpp:" + this.selectedRoom.jid + "?join"
-      });
-    },
-    editMucName() {
-      const mucName = prompt(
-        "Neuen Raumnamen eingeben:",
-        this.selectedRoom.name
-      );
-      if (mucName != null) {
-        const loader = this.$loading.show();
-        setMucName(this.selectedRoom.jid, mucName)
-          .then(() => this.refreshRooms())
-          .finally(() => loader.hide());
-      }
-    }
-  }
-};
-</script>
 <style scoped>
 .roomEntry {
   font-size: 1.2vw;

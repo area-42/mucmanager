@@ -1,12 +1,3 @@
-<template>
-  <modal name="qrcode-modal" height="auto" @before-open="beforeOpen">
-    <div class="qrcodeModal">
-      <QrcodeVue :value="text" :size="200" level="H"></QrcodeVue>
-      {{ text }}
-    </div>
-  </modal>
-</template>
-
 <script>
 import QrcodeVue from "qrcode.vue";
 export default {
@@ -26,7 +17,14 @@ export default {
   }
 };
 </script>
-
+<template>
+  <modal name="qrcode-modal" height="auto" @before-open="beforeOpen">
+    <div class="qrcodeModal">
+      <QrcodeVue :value="text" :size="200" level="H"></QrcodeVue>
+      {{ text }}
+    </div>
+  </modal>
+</template>
 <style scoped>
 .qrcodeModal {
   text-align: center;

@@ -28,7 +28,8 @@ import VModal from "vue-js-modal";
 var ua = window.navigator.userAgent;
 if (ua.indexOf("MSIE") >= 0 || ua.indexOf("Trident") >= 0) {
   alert(
-    "Diese Anwendung ist mit dem Internet Explorer nicht mehr lauffähig. Bitte nutzen Sie einen modernen Browser wie z.B. Google Chrome."
+    "Diese Anwendung ist mit dem Internet Explorer nicht mehr lauffähig." +
+      " Bitte nutzen Sie einen modernen Browser wie z.B. Google Chrome."
   );
 } else {
   Vue.config.productionTip = false;
@@ -65,11 +66,12 @@ if (ua.indexOf("MSIE") >= 0 || ua.indexOf("Trident") >= 0) {
     faEdit
   );
 
-  Vue.component("font-awesome-icon", FontAwesomeIcon);
+  Vue.component("FontAwesomeIcon", FontAwesomeIcon);
 
   Vue.use(VModal, { dialog: true });
 
   new Vue({
+    name: "App",
     render: h => h(App)
   }).$mount("#app");
 }
