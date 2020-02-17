@@ -188,30 +188,32 @@ export default {
       });
     },
     openFileInput() {
+      this.$refs.fileInput.value = "";
       this.$refs.fileInput.click();
     },
     importExcel() {
       const file = this.$refs.fileInput.files[0];
       if (file) {
-        readXlsxFile(file).then(rows => {
-          const jids = rows
-            .map(x => x[2] && x[2].trim())
-            .filter(x => /^[^@/<>'\"]+@[^@/<>'\"]+$/.test(x))
-            .filter(x => !this.memberentries.some(e => e.memberjid === x));
-          if (jids.length > 0) {
-            if (
-              confirm(
-                `Wirklich ${jids.length} ` +
-                  `Mitglieder zu diesem Raum hinzufügen?`
-              )
-            ) {
-              this.setAffiliationForJids(jids, "member");
+        readXlsxFile(file)
+          .then(rows => {
+            const jids = rows
+              .map(x => x[2] && x[2].trim())
+              .filter(x => /^[^@/<>'\"]+@[^@/<>'\"]+$/.test(x))
+              .filter(x => !this.memberentries.some(e => e.memberjid === x));
+            if (jids.length > 0) {
+              if (
+                confirm(
+                  `Wirklich ${jids.length} ` +
+                    `Mitglieder zu diesem Raum hinzufügen?`
+                )
+              ) {
+                this.setAffiliationForJids(jids, "member");
+              }
+            } else {
+              alert("Keine neuen Mitglieder gefunden.");
             }
-          } else {
-            alert("Keine neuen Mitglieder gefunden.");
-          }
-          this.$refs.fileInput.value = "";
-        });
+          })
+          .catch(() => alert("Datei konnte nicht gelesen werden."));
       }
     },
     outputExcel() {
