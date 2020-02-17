@@ -94,6 +94,9 @@ export default {
           this.$Progress.finish();
           this.findRoomMembers();
         });
+        return p;
+      } else {
+        return Promise.resolve();
       }
     },
     delAllMembers() {
@@ -198,19 +201,33 @@ export default {
           .then(rows => {
             const jids = rows
               .map(x => x[2] && x[2].trim())
-              .filter(x => /^[^@/<>'\"]+@[^@/<>'\"]+$/.test(x))
-              .filter(x => !this.memberentries.some(e => e.memberjid === x));
-            if (jids.length > 0) {
+              .filter(x => /^[^@/<>'\"]+@[^@/<>'\"]+$/.test(x));
+            if (jids.length === 0) {
+              alert("Keine Daten gefunden.");
+              return;
+            }
+            const new_jids = jids.filter(
+                    x => !this.memberentries.some(e => e.memberjid === x)
+                  ),
+                  old_jids = this.memberentries
+                    .filter(x => !jids.some(e => e === x.memberjid))
+                    .map(x => x.memberjid);
+            if (new_jids.length + old_jids.length > 0) {
               if (
                 confirm(
-                  `Wirklich ${jids.length} ` +
-                    `Mitglieder zu diesem Raum hinzufügen?`
+                  "Wirklich " +
+                    old_jids.length +
+                    " Mitglieder aus diesem Raum entfernen und " +
+                    new_jids.length +
+                    " Mitglieder zu diesem Raum hinzufügen?"
                 )
               ) {
-                this.setAffiliationForJids(jids, "member");
+                this.setAffiliationForJids(old_jids, "none").then(() =>
+                  this.setAffiliationForJids(new_jids, "member")
+                );
               }
             } else {
-              alert("Keine neuen Mitglieder gefunden.");
+              alert("Keine Mitglieder hinzuzufügen oder zu entfernen.");
             }
           })
           .catch(() => alert("Datei konnte nicht gelesen werden."));
