@@ -210,6 +210,7 @@ export default {
                     x => !this.memberentries.some(e => e.memberjid === x)
                   ),
                   old_jids = this.memberentries
+                    .filter(x => x.memberaffiliation === "member")
                     .filter(x => !jids.some(e => e === x.memberjid))
                     .map(x => x.memberjid);
             if (new_jids.length + old_jids.length > 0) {
