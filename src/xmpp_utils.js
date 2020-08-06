@@ -32,10 +32,10 @@ function discoverRooms(MUC_DOMAIN) {
   const iq = $iq({
     type: "get",
     from: connection.jid,
-    to: MUC_DOMAIN
+    to: MUC_DOMAIN,
   }).c("query", { xmlns: Strophe.NS.DISCO_ITEMS });
 
-  return sendIQ(iq).then(iq => iq.querySelectorAll("query item"));
+  return sendIQ(iq).then((iq) => iq.querySelectorAll("query item"));
 }
 
 function destroyRoom(roomJid) {
@@ -43,7 +43,7 @@ function destroyRoom(roomJid) {
     iq = $iq({
       type: "set",
       from: connection.jid,
-      to: roomJid
+      to: roomJid,
     })
       .c("query", { xmlns: Strophe.NS.MUC_OWNER })
       .cnode(destroy.node);
@@ -54,7 +54,7 @@ function destroyRoom(roomJid) {
 function enterRoom(roomJid) {
   const presence = $pres({
     from: connection.jid,
-    to: `${roomJid}/${Strophe.getNodeFromJid(connection.jid)}`
+    to: `${roomJid}/${Strophe.getNodeFromJid(connection.jid)}`,
   }).c("x", { xmlns: Strophe.NS.MUC });
 
   return sendPresence(presence);
@@ -64,7 +64,7 @@ function leaveRoom(roomJid) {
   const presence = $pres({
     from: connection.jid,
     to: `${roomJid}/${Strophe.getNodeFromJid(connection.jid)}`,
-    type: "unavailable"
+    type: "unavailable",
   }).c("x", { xmlns: Strophe.NS.MUC });
 
   return sendPresence(presence);
@@ -78,22 +78,22 @@ function getMemberList(roomJid, affiliation) {
   const iq = $iq({
     type: "get",
     from: connection.jid,
-    to: roomJid
+    to: roomJid,
   })
     .c("query", { xmlns: Strophe.NS.MUC_ADMIN })
     .c("item", { affiliation: affiliation || "member" });
 
-  return sendIQ(iq).then(iq => iq.querySelectorAll("query item"));
+  return sendIQ(iq).then((iq) => iq.querySelectorAll("query item"));
 }
 
 function setAffiliation(roomJid, jids, affiliation) {
   const iq = $iq({
     type: "set",
     from: connection.jid,
-    to: roomJid
+    to: roomJid,
   }).c("query", { xmlns: Strophe.NS.MUC_ADMIN });
 
-  jids.forEach(jid =>
+  jids.forEach((jid) =>
     iq.c("item", { affiliation: affiliation || "member", jid }).up()
   );
 
@@ -104,21 +104,21 @@ function setMucName(roomJid, name) {
   const iq = $iq({
     type: "get",
     from: connection.jid,
-    to: roomJid
+    to: roomJid,
   }).c("query", { xmlns: Strophe.NS.MUC_OWNER });
-  return sendIQ(iq).then(iq => {
+  return sendIQ(iq).then((iq) => {
     const iq2 = $iq({
       type: "set",
       from: connection.jid,
-      to: roomJid
+      to: roomJid,
     })
       .c("query", { xmlns: Strophe.NS.MUC_OWNER })
       .c("x", { xmlns: Strophe.NS.XFORM, type: "submit" });
     iq.querySelector("query")
       .firstChild.getElementsByTagName("field")
-      .forEach(node => {
+      .forEach((node) => {
         if (node.getAttribute("var") === "muc#roomconfig_roomname") {
-          node.childNodes.forEach(child => node.removeChild(child));
+          node.childNodes.forEach((child) => node.removeChild(child));
           const valueElement = document.createElement("value");
           const textNode = document.createTextNode(name);
           valueElement.appendChild(textNode);
@@ -144,8 +144,8 @@ function doXmppLogin(
   connection = new Strophe.Connection(BOSH_SERVICE);
 
   if (debug) {
-    connection.xmlInput = body => log(body.outerHTML, "color: darkgoldenrod");
-    connection.xmlOutput = body => log(body.outerHTML, "color: darkcyan");
+    connection.xmlInput = (body) => log(body.outerHTML, "color: darkgoldenrod");
+    connection.xmlOutput = (body) => log(body.outerHTML, "color: darkcyan");
   }
 
   connection.connect(
@@ -170,5 +170,5 @@ export {
   enterAndLeaveRoom,
   setAffiliation,
   setMucName,
-  xmppStatus
+  xmppStatus,
 };

@@ -1,6 +1,6 @@
 function capitalizeName(str) {
   if (str) {
-    return str.replace(/(?:^|-)\S/g, a => a.toUpperCase());
+    return str.replace(/(?:^|-)\S/g, (a) => a.toUpperCase());
   }
   return "";
 }

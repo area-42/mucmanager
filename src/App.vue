@@ -11,20 +11,20 @@ export default {
     Login,
     RoomList,
     MemberList,
-    QrcodeModal
+    QrcodeModal,
   },
   data() {
     return {
       appConfig: null,
       selectedRoom: null,
       isConnected: false,
-      xmppUser: null
+      xmppUser: null,
     };
   },
   created() {
     fetch("./config/runtime.json")
-      .then(res => res.json())
-      .then(json => (this.appConfig = json));
+      .then((res) => res.json())
+      .then((json) => (this.appConfig = json));
   },
 
   methods: {
@@ -37,10 +37,11 @@ export default {
     },
     onAddUsers(users) {
       this.$refs.memberlist.addMembers(users);
-    }
-  }
+    },
+  },
 };
 </script>
+
 <template>
   <div v-if="appConfig" id="app">
     <v-dialog />
@@ -86,6 +87,7 @@ export default {
     </div>
   </div>
 </template>
+
 <style>
 #app {
   font-family: "Avenir", Helvetica, Arial, sans-serif;

@@ -2,7 +2,7 @@ module.exports = {
   root: true,
 
   env: {
-    node: true
+    node: true,
   },
 
   extends: ["plugin:vue/essential", "@vue/prettier"],
@@ -45,14 +45,16 @@ module.exports = {
     "vue/no-unsupported-features": "error",
     "vue/require-name-property": "error",
     "vue/static-class-names-order": "error",
-    "vue/valid-v-bind-sync": "error"
+    "vue/valid-v-bind-sync": "error",
+    "vue/padding-line-between-blocks": "error",
   },
 
   parserOptions: {
-    parser: "babel-eslint"
+    parser: "babel-eslint",
   },
 
   extends: ["plugin:vue/recommended", "@vue/prettier"],
+  extends: ["plugin:vue/recommended", "@vue/prettier"],
 
-  extends: ["plugin:vue/recommended", "@vue/prettier"]
+  extends: ["plugin:vue/recommended", "@vue/prettier"],
 };

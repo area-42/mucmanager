@@ -6,20 +6,20 @@ export default {
     selectedRoom: { type: Object, default: null },
     isConnected: { type: Boolean },
     baseurl: { type: String, default: null },
-    apikey: { type: String, default: null }
+    apikey: { type: String, default: null },
   },
   data() {
     return {
       userentries: [],
       currentPage: 1,
       filterVal: "",
-      lastPage: 1
+      lastPage: 1,
     };
   },
   watch: {
     currentPage() {
       this.loadUserList();
-    }
+    },
   },
   created() {
     this.resetAndReload();
@@ -34,13 +34,15 @@ export default {
       }
       const loader = this.$loading.show();
       fetch(fetchUrl)
-        .then(res => res.json())
-        .then(json => {
+        .then((res) => res.json())
+        .then((json) => {
           this.userentries = json.data;
           this.lastPage = json.last_page;
         })
         .finally(() => {
-          this.userentries.map(entry => (entry.jid = entry.jid.toLowerCase()));
+          this.userentries.map(
+            (entry) => (entry.jid = entry.jid.toLowerCase())
+          );
           loader.hide();
         });
     },
@@ -69,12 +71,13 @@ export default {
           "xmpp:" +
           user.jid +
           "?roster;name=" +
-          encodeURIComponent(user.givenName + " " + user.sn)
+          encodeURIComponent(user.givenName + " " + user.sn),
       });
-    }
-  }
+    },
+  },
 };
 </script>
+
 <template>
   <div class="userEntry">
     <div class="menuOptions">
@@ -90,9 +93,9 @@ export default {
           class="mm-button"
           :disabled="
             userentries.length < 1 ||
-              !selectedRoom ||
-              !['owner', 'admin'].includes(selectedRoom.affiliation) ||
-              !isConnected
+            !selectedRoom ||
+            !['owner', 'admin'].includes(selectedRoom.affiliation) ||
+            !isConnected
           "
           title="Alle hinzufügen"
           @click="addAllUsers"
@@ -133,8 +136,8 @@ export default {
             class="mm-button"
             :disabled="
               !selectedRoom ||
-                !['owner', 'admin'].includes(selectedRoom.affiliation) ||
-                !isConnected
+              !['owner', 'admin'].includes(selectedRoom.affiliation) ||
+              !isConnected
             "
             :title="'Anwender hinzufügen'"
             @click="addUser(user)"
@@ -150,11 +153,11 @@ export default {
           </button>
           {{
             user.sn +
-              ", " +
-              user.givenName +
-              " (" +
-              user.extensionAttribute1 +
-              ")"
+            ", " +
+            user.givenName +
+            " (" +
+            user.extensionAttribute1 +
+            ")"
           }}
         </div>
       </div>
@@ -164,6 +167,7 @@ export default {
     </div>
   </div>
 </template>
+
 <style scoped>
 .userEntry {
   font-size: 1.2vw;

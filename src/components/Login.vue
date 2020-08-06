@@ -4,14 +4,14 @@ export default {
   name: "Login",
   props: {
     boshService: { type: String, default: null },
-    xmppDomain: { type: String, default: null }
+    xmppDomain: { type: String, default: null },
   },
   data() {
     return {
       xmppUser: "",
       xmppPass: "",
       isConnected: false,
-      showLogin: true
+      showLogin: true,
     };
   },
   methods: {
@@ -43,17 +43,18 @@ export default {
         [
           xmppStatus.CONNECTING,
           xmppStatus.AUTHENTICATING,
-          xmppStatus.DISCONNECTING
+          xmppStatus.DISCONNECTING,
         ].includes(status)
       ) {
         this.loader = this.$loading.show();
       } else {
         this.loader.hide();
       }
-    }
-  }
+    },
+  },
 };
 </script>
+
 <template>
   <div>
     <div v-if="showLogin" class="loginDiv">
@@ -101,6 +102,7 @@ export default {
     </div>
   </div>
 </template>
+
 <style scoped>
 .loginInput {
   padding: 5px;

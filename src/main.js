@@ -22,7 +22,7 @@ import {
   faUserMinus,
   faUserPlus,
   faQrcode,
-  faEdit
+  faEdit,
 } from "@fortawesome/free-solid-svg-icons";
 import VModal from "vue-js-modal";
 
@@ -40,12 +40,12 @@ if (ua.indexOf("MSIE") >= 0 || ua.indexOf("Trident") >= 0) {
     opacity: 0.3,
     loader: "dots",
     width: 128,
-    height: 128
+    height: 128,
   });
 
   Vue.use(VueProgressBar, {
     color: "blue",
-    autoFinish: false
+    autoFinish: false,
   });
 
   library.add(
@@ -74,6 +74,6 @@ if (ua.indexOf("MSIE") >= 0 || ua.indexOf("Trident") >= 0) {
 
   new Vue({
     name: "App",
-    render: h => h(App)
+    render: (h) => h(App),
   }).$mount("#app");
 }

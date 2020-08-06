@@ -16,11 +16,11 @@ export default {
     selectedRoom: { type: Object, default: null },
     isConnected: { type: Boolean },
     xmppDomain: { type: String, default: null },
-    xmppUser: { type: String, default: null }
+    xmppUser: { type: String, default: null },
   },
   data() {
     return {
-      memberentries: []
+      memberentries: [],
     };
   },
   computed: {
@@ -48,7 +48,7 @@ export default {
       }
 
       return this.memberentries.concat().sort(compare);
-    }
+    },
   },
   watch: {
     selectedRoom() {
@@ -62,7 +62,7 @@ export default {
       if (!this.isConnected) {
         this.memberentries = [];
       }
-    }
+    },
   },
   methods: {
     delMember(memberjid) {
@@ -102,8 +102,8 @@ export default {
     delAllMembers() {
       if (confirm("Wirklich alle Mitglieder aus diesem Raum entfernen?")) {
         const jids = this.memberentries
-          .filter(e => e.memberaffiliation === "member")
-          .map(e => e.memberjid);
+          .filter((e) => e.memberaffiliation === "member")
+          .map((e) => e.memberjid);
         this.setAffiliationForJids(jids, "none");
       }
     },
@@ -111,28 +111,31 @@ export default {
       this.memberentries = [];
       const loader = this.$loading.show();
       Promise.all(
-        all_affiliations.map(affiliation =>
-          getMemberList(this.selectedRoom.jid, affiliation).then(memberlist => {
-            memberlist.forEach(member => {
-              const jid = member.getAttribute("jid"),
-                    m = jid.match(/^((.*)\.)*(.*)@.*$/);
-              this.memberentries.push({
-                memberjid: jid,
-                memberaffiliation: member.getAttribute("affiliation"),
-                lastname: m[3],
-                firstname: m[2]
+        all_affiliations.map((affiliation) =>
+          getMemberList(this.selectedRoom.jid, affiliation).then(
+            (memberlist) => {
+              memberlist.forEach((member) => {
+                const jid = member.getAttribute("jid"),
+                      m = jid.match(/^((.*)\.)*(.*)@.*$/);
+                this.memberentries.push({
+                  memberjid: jid,
+                  memberaffiliation: member.getAttribute("affiliation"),
+                  lastname: m[3],
+                  firstname: m[2],
+                });
               });
-            });
-          })
+            }
+          )
         )
       ).finally(() => loader.hide());
     },
     addMembers(members) {
       const jids = members
         .filter(
-          member => !this.memberentries.some(e => e.memberjid === member.jid)
+          (member) =>
+            !this.memberentries.some((e) => e.memberjid === member.jid)
         )
-        .map(e => e.jid);
+        .map((e) => e.jid);
       this.setAffiliationForJids(jids, "member");
     },
     addUserManual() {
@@ -164,30 +167,30 @@ export default {
         buttons: [
           {
             title: "Abbrechen",
-            default: true
+            default: true,
           },
           {
             title: "Owner",
             handler: () => {
               this.$modal.hide("dialog");
               this.setAffiliationForJids([member.memberjid], "owner");
-            }
+            },
           },
           {
             title: "Admin",
             handler: () => {
               this.$modal.hide("dialog");
               this.setAffiliationForJids([member.memberjid], "admin");
-            }
+            },
           },
           {
             title: "Member",
             handler: () => {
               this.$modal.hide("dialog");
               this.setAffiliationForJids([member.memberjid], "member");
-            }
-          }
-        ]
+            },
+          },
+        ],
       });
     },
     openFileInput() {
@@ -198,21 +201,21 @@ export default {
       const file = this.$refs.fileInput.files[0];
       if (file) {
         readXlsxFile(file)
-          .then(rows => {
+          .then((rows) => {
             const jids = rows
-              .map(x => x[2] && x[2].trim())
-              .filter(x => /^[^@/<>'\"]+@[^@/<>'\"]+$/.test(x));
+              .map((x) => x[2] && x[2].trim())
+              .filter((x) => /^[^@/<>'\"]+@[^@/<>'\"]+$/.test(x));
             if (jids.length === 0) {
               alert("Keine Daten gefunden.");
               return;
             }
             const new_jids = jids.filter(
-                    x => !this.memberentries.some(e => e.memberjid === x)
+                    (x) => !this.memberentries.some((e) => e.memberjid === x)
                   ),
                   old_jids = this.memberentries
-                    .filter(x => x.memberaffiliation === "member")
-                    .filter(x => !jids.some(e => e === x.memberjid))
-                    .map(x => x.memberjid);
+                    .filter((x) => x.memberaffiliation === "member")
+                    .filter((x) => !jids.some((e) => e === x.memberjid))
+                    .map((x) => x.memberjid);
             if (new_jids.length + old_jids.length > 0) {
               if (
                 confirm(
@@ -239,44 +242,45 @@ export default {
             config = {
               filename: "mucmanager",
               sheet: {
-                data
-              }
+                data,
+              },
             };
       data.push([
         { value: "Raumname", type: "string" },
-        { value: this.selectedRoom.name, type: "string" }
+        { value: this.selectedRoom.name, type: "string" },
       ]);
       data.push([
         { value: "Raum-Jid", type: "string" },
-        { value: this.selectedRoom.jid, type: "string" }
+        { value: this.selectedRoom.jid, type: "string" },
       ]);
       data.push([]);
       data.push([
         { value: "Nachname", type: "string" },
         { value: "Vorname", type: "string" },
         { value: "Jid", type: "string" },
-        { value: "Zugehörigkeit", type: "string" }
+        { value: "Zugehörigkeit", type: "string" },
       ]);
-      this.orderedMemberentries.forEach(e => {
+      this.orderedMemberentries.forEach((e) => {
         data.push([
           { value: capitalizeName(e.lastname), type: "string" },
           { value: capitalizeName(e.firstname), type: "string" },
           { value: e.memberjid, type: "string" },
-          { value: capitalizeName(e.memberaffiliation), type: "string" }
+          { value: capitalizeName(e.memberaffiliation), type: "string" },
         ]);
       });
       data.push([]);
       data.push([
         {
           value: `Stand: ${dayjs().format("D. MMMM YYYY HH:mm:ss")} Uhr`,
-          type: "string"
-        }
+          type: "string",
+        },
       ]);
       zipcelx(config);
-    }
-  }
+    },
+  },
 };
 </script>
+
 <template>
   <div class="memberEntry">
     <div class="menuOptions">
@@ -308,8 +312,8 @@ export default {
           class="mm-button"
           :disabled="
             !selectedRoom ||
-              !['owner', 'admin'].includes(selectedRoom.affiliation) ||
-              !isConnected
+            !['owner', 'admin'].includes(selectedRoom.affiliation) ||
+            !isConnected
           "
           title="Nutzer aus Excel-Datei importieren"
           @click="openFileInput"
@@ -320,8 +324,8 @@ export default {
           class="mm-button"
           :disabled="
             !selectedRoom ||
-              !['owner', 'admin'].includes(selectedRoom.affiliation) ||
-              !isConnected
+            !['owner', 'admin'].includes(selectedRoom.affiliation) ||
+            !isConnected
           "
           title="Nutzer mit bekannter jid manuell hinzufügen"
           @click="addUserManual"
@@ -332,8 +336,8 @@ export default {
           class="mm-button"
           :disabled="
             !selectedRoom ||
-              !['owner', 'admin'].includes(selectedRoom.affiliation) ||
-              !isConnected
+            !['owner', 'admin'].includes(selectedRoom.affiliation) ||
+            !isConnected
           "
           title="Alle entfernen"
           @click="delAllMembers"
@@ -350,9 +354,9 @@ export default {
             class="mm-button"
             :disabled="
               !selectedRoom ||
-                !['owner', 'admin'].includes(selectedRoom.affiliation) ||
-                !isConnected ||
-                member.memberaffiliation !== 'member'
+              !['owner', 'admin'].includes(selectedRoom.affiliation) ||
+              !isConnected ||
+              member.memberaffiliation !== 'member'
             "
             title="Anwender entfernen"
             @click="delMember(member.memberjid)"
@@ -376,6 +380,7 @@ export default {
     </div>
   </div>
 </template>
+
 <style scoped>
 .memberEntry {
   font-size: 1.2vw;

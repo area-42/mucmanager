@@ -3,7 +3,7 @@ import {
   destroyRoom,
   discoverRooms,
   enterAndLeaveRoom,
-  setMucName
+  setMucName,
 } from "../xmpp_utils.js";
 export default {
   name: "Roomlist",
@@ -11,12 +11,12 @@ export default {
     isConnected: { type: Boolean },
     mucDomain: { type: String, default: null },
     roomnameGuideline: { type: String, default: null },
-    roomnameGuidelineDescription: { type: String, default: null }
+    roomnameGuidelineDescription: { type: String, default: null },
   },
   data() {
     return {
       roomentries: [],
-      selectedRoom: null
+      selectedRoom: null,
     };
   },
   watch: {
@@ -27,7 +27,7 @@ export default {
         this.selectedRoom = null;
         this.roomentries = [];
       }
-    }
+    },
   },
   methods: {
     refreshRooms() {
@@ -36,14 +36,14 @@ export default {
       this.roomentries = [];
       const loader = this.$loading.show();
       discoverRooms(this.mucDomain)
-        .then(rooms => {
-          rooms.forEach(room => {
+        .then((rooms) => {
+          rooms.forEach((room) => {
             const m = room.getAttribute("name").match(/(^.*)\s\(.*\)$/);
             if (m && m[1]) {
               this.roomentries.push({
                 name: m === null ? name : m[1],
                 jid: room.getAttribute("jid"),
-                affiliation: null
+                affiliation: null,
               });
             }
           });
@@ -61,7 +61,7 @@ export default {
               `${this.roomnameGuidelineDescription}`
           );
         } else if (
-          this.roomentries.some(e => e.jid === `${roomJid}@${this.mucDomain}`)
+          this.roomentries.some((e) => e.jid === `${roomJid}@${this.mucDomain}`)
         ) {
           alert(`Der Raum "${roomJid}" existiert bereits!`);
         } else {
@@ -87,7 +87,7 @@ export default {
     selectRoom() {
       const loader = this.$loading.show();
       enterAndLeaveRoom(this.selectedRoom.jid)
-        .then(presence => {
+        .then((presence) => {
           this.selectedRoom.affiliation = presence
             .querySelector("x item")
             .getAttribute("affiliation");
@@ -99,7 +99,7 @@ export default {
     },
     showQRCode() {
       this.$modal.show("qrcode-modal", {
-        text: "xmpp:" + this.selectedRoom.jid + "?join"
+        text: "xmpp:" + this.selectedRoom.jid + "?join",
       });
     },
     editMucName() {
@@ -113,10 +113,11 @@ export default {
           .then(() => this.refreshRooms())
           .finally(() => loader.hide());
       }
-    }
-  }
+    },
+  },
 };
 </script>
+
 <template>
   <div class="roomEntry">
     <div class="menuOptions">
@@ -141,8 +142,8 @@ export default {
           class="mm-button"
           :disabled="
             !isConnected ||
-              !selectedRoom ||
-              selectedRoom.affiliation !== 'owner'
+            !selectedRoom ||
+            selectedRoom.affiliation !== 'owner'
           "
           title="Gruppenchat entfernen"
           @click="delRoom"
@@ -161,8 +162,8 @@ export default {
           class="mm-button"
           :disabled="
             !isConnected ||
-              !selectedRoom ||
-              selectedRoom.affiliation !== 'owner'
+            !selectedRoom ||
+            selectedRoom.affiliation !== 'owner'
           "
           title="Raumnamen editieren"
           @click="editMucName"
@@ -195,6 +196,7 @@ export default {
     </div>
   </div>
 </template>
+
 <style scoped>
 .roomEntry {
   font-size: 1.2vw;
