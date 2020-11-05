@@ -162,9 +162,7 @@ export default {
         </div>
       </div>
     </div>
-    <div class="title">
-      Anwender ( maximal 500 angezeigt )
-    </div>
+    <div class="title">Anwender ( maximal 500 angezeigt )</div>
   </div>
 </template>
 

@@ -191,9 +191,7 @@ export default {
         </label>
       </div>
     </div>
-    <div class="title">
-      Chaträume
-    </div>
+    <div class="title">Chaträume</div>
   </div>
 </template>
 

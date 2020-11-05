@@ -375,9 +375,7 @@ export default {
         </div>
       </div>
     </div>
-    <div class="title">
-      Mitglieder des Raumes
-    </div>
+    <div class="title">Mitglieder des Raumes</div>
   </div>
 </template>
 

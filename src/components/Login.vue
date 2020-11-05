@@ -97,9 +97,7 @@ export default {
         <font-awesome-icon :icon="['fas', 'angle-double-down']" />
       </button>
     </span>
-    <div class="titleApp">
-      MucManager
-    </div>
+    <div class="titleApp">MucManager</div>
   </div>
 </template>
 
