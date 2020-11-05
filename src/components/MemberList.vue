@@ -117,12 +117,14 @@ export default {
               memberlist.forEach((member) => {
                 const jid = member.getAttribute("jid"),
                       m = jid.match(/^((.*)\.)*(.*)@.*$/);
-                this.memberentries.push({
-                  memberjid: jid,
-                  memberaffiliation: member.getAttribute("affiliation"),
-                  lastname: m[3],
-                  firstname: m[2],
-                });
+                if (m) {
+                  this.memberentries.push({
+                    memberjid: jid,
+                    memberaffiliation: member.getAttribute("affiliation"),
+                    lastname: m[3],
+                    firstname: m[2],
+                  });
+                }
               });
             }
           )
