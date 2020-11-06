@@ -4,14 +4,23 @@ import {
   discoverRooms,
   enterAndLeaveRoom,
   setMucName,
+  setMucMembersonly,
 } from "../xmpp_utils.js";
 export default {
   name: "Roomlist",
   props: {
     isConnected: { type: Boolean },
+    membersOnlyAdmins: {
+      type: Array,
+      default: function () {
+        return [];
+      },
+    },
     mucDomain: { type: String, default: null },
     roomnameGuideline: { type: String, default: null },
     roomnameGuidelineDescription: { type: String, default: null },
+    xmppDomain: { type: String, default: null },
+    xmppUser: { type: String, default: null },
   },
   data() {
     return {
@@ -72,6 +81,11 @@ export default {
         }
       }
     },
+    canEditMembersOnly() {
+      return this.membersOnlyAdmins.includes(
+        this.xmppUser + "@" + this.xmppDomain
+      );
+    },
     delRoom() {
       if (confirm("Raum wirklich löschen?")) {
         const loader = this.$loading.show();
@@ -113,6 +127,41 @@ export default {
           .then(() => this.refreshRooms())
           .finally(() => loader.hide());
       }
+    },
+    editMucMembersonly() {
+      this.$modal.show("dialog", {
+        title: "Nur für Mitglieder?",
+        text:
+          "Soll der Raum <strong>" +
+          this.selectedRoom.name +
+          "</strong> nur für Mitglieder oder offen sein?",
+        buttons: [
+          {
+            title: "Abbrechen",
+            default: true,
+          },
+          {
+            title: "nur Mitglieder",
+            handler: () => {
+              this.$modal.hide("dialog");
+              const loader = this.$loading.show();
+              setMucMembersonly(this.selectedRoom.jid, true)
+                .then(() => this.refreshRooms())
+                .finally(() => loader.hide());
+            },
+          },
+          {
+            title: "offen",
+            handler: () => {
+              this.$modal.hide("dialog");
+              const loader = this.$loading.show();
+              setMucMembersonly(this.selectedRoom.jid, false)
+                .then(() => this.refreshRooms())
+                .finally(() => loader.hide());
+            },
+          },
+        ],
+      });
     },
   },
 };
@@ -169,6 +218,19 @@ export default {
           @click="editMucName"
         >
           <font-awesome-icon :icon="['fas', 'edit']" />
+        </button>
+        <button
+          v-if="isConnected && canEditMembersOnly()"
+          class="mm-button"
+          :disabled="
+            !isConnected ||
+            !selectedRoom ||
+            selectedRoom.affiliation !== 'owner'
+          "
+          title="Raum nur für Mitglieder oder offen machen"
+          @click="editMucMembersonly"
+        >
+          <font-awesome-icon :icon="['fas', 'user-lock']" />
         </button>
       </div>
       <div v-if="selectedRoom" class="affiliation">

@@ -67,11 +67,14 @@ export default {
       <div class="box">
         <RoomList
           :is-connected="isConnected"
+          :members-only-admins="appConfig.MEMBERSONLY_ADMINS"
           :muc-domain="appConfig.MUC_DOMAIN"
           :roomname-guideline="appConfig.ROOMNAME_GUIDELINE"
           :roomname-guideline-description="
             appConfig.ROOMNAME_GUIDELINE_DESCRIPTION
           "
+          :xmpp-domain="appConfig.XMPP_DOMAIN"
+          :xmpp-user="xmppUser"
           @selectRoom="onSelectRoom"
         />
       </div>

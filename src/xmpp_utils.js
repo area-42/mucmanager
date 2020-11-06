@@ -100,7 +100,7 @@ function setAffiliation(roomJid, jids, affiliation) {
   return sendIQ(iq);
 }
 
-function setMucName(roomJid, name) {
+function setMucOption(roomJid, varName, value) {
   const iq = $iq({
     type: "get",
     from: connection.jid,
@@ -117,10 +117,10 @@ function setMucName(roomJid, name) {
     iq.querySelector("query")
       .firstChild.getElementsByTagName("field")
       .forEach((node) => {
-        if (node.getAttribute("var") === "muc#roomconfig_roomname") {
+        if (node.getAttribute("var") === varName) {
           node.childNodes.forEach((child) => node.removeChild(child));
           const valueElement = document.createElement("value");
-          const textNode = document.createTextNode(name);
+          const textNode = document.createTextNode(value);
           valueElement.appendChild(textNode);
           node.appendChild(valueElement);
         }
@@ -128,6 +128,18 @@ function setMucName(roomJid, name) {
       });
     return sendIQ(iq2);
   });
+}
+
+function setMucName(roomJid, name) {
+  return setMucOption(roomJid, "muc#roomconfig_roomname", name);
+}
+
+function setMucMembersonly(roomJid, membersonly) {
+  return setMucOption(
+    roomJid,
+    "muc#roomconfig_membersonly",
+    membersonly ? 1 : 0
+  );
 }
 
 function doXmppLogin(
@@ -170,5 +182,6 @@ export {
   enterAndLeaveRoom,
   setAffiliation,
   setMucName,
+  setMucMembersonly,
   xmppStatus,
 };
