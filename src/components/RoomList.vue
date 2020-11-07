@@ -3,6 +3,7 @@ import {
   destroyRoom,
   discoverRooms,
   enterAndLeaveRoom,
+  getRoomFeatures,
   setMucName,
   setMucMembersonly,
 } from "../xmpp_utils.js";
@@ -27,6 +28,18 @@ export default {
       roomentries: [],
       selectedRoom: null,
     };
+  },
+  computed: {
+    membersOnlyCaption() {
+      if (this.selectedRoom && this.selectedRoom.features) {
+        if (this.selectedRoom.features.includes("muc_membersonly")) {
+          return "nur Mitglieder";
+        } else if (this.selectedRoom.features.includes("muc_open")) {
+          return "offen";
+        }
+      }
+      return "";
+    },
   },
   watch: {
     isConnected() {
@@ -105,6 +118,15 @@ export default {
           this.selectedRoom.affiliation = presence
             .querySelector("x item")
             .getAttribute("affiliation");
+        })
+        .then(() => {
+          if (this.canEditMembersOnly()) {
+            return getRoomFeatures(this.selectedRoom.jid);
+          }
+          return Promise.resolve([]);
+        })
+        .then((features) => {
+          this.$set(this.selectedRoom, "features", features);
         })
         .finally(() => {
           this.$emit("selectRoom", this.selectedRoom);
@@ -233,8 +255,11 @@ export default {
           <font-awesome-icon :icon="['fas', 'user-lock']" />
         </button>
       </div>
-      <div v-if="selectedRoom" class="affiliation">
+      <div v-if="selectedRoom && selectedRoom.affiliation" class="affiliation">
         Raumzugehörigkeit: {{ selectedRoom.affiliation }}
+      </div>
+      <div v-if="membersOnlyCaption" class="membersOnly">
+        Raumzugang: {{ membersOnlyCaption }}
       </div>
     </div>
     <div><hr /></div>
@@ -322,6 +347,10 @@ export default {
 .affiliation {
   text-transform: capitalize;
   color: white;
-  padding-top: 2vw;
+  padding-top: 1.5vw;
+}
+.membersOnly {
+  color: white;
+  padding-top: 0.3vw;
 }
 </style>

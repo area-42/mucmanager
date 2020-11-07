@@ -86,6 +86,18 @@ function getMemberList(roomJid, affiliation) {
   return sendIQ(iq).then((iq) => iq.querySelectorAll("query item"));
 }
 
+function getRoomFeatures(roomJid) {
+  const iq = $iq({
+    type: "get",
+    from: connection.jid,
+    to: roomJid,
+  }).c("query", { xmlns: Strophe.NS.DISCO_INFO });
+
+  return sendIQ(iq).then((iq) =>
+    Array.from(iq.querySelectorAll("feature"), (x) => x.getAttribute("var"))
+  );
+}
+
 function setAffiliation(roomJid, jids, affiliation) {
   const iq = $iq({
     type: "set",
@@ -179,6 +191,7 @@ export {
   destroyRoom,
   discoverRooms,
   getMemberList,
+  getRoomFeatures,
   enterAndLeaveRoom,
   setAffiliation,
   setMucName,
