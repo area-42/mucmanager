@@ -61,13 +61,11 @@ export default {
         .then((rooms) => {
           rooms.forEach((room) => {
             const m = room.getAttribute("name").match(/(^.*)\s\(.*\)$/);
-            if (m && m[1]) {
-              this.roomentries.push({
-                name: m === null ? name : m[1],
-                jid: room.getAttribute("jid"),
-                affiliation: null,
-              });
-            }
+            this.roomentries.push({
+              name: m && m[1] ? m[1] : room.getAttribute("name"),
+              jid: room.getAttribute("jid"),
+              affiliation: null,
+            });
           });
         })
         .finally(() => loader.hide());
