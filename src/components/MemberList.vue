@@ -205,7 +205,7 @@ export default {
         readXlsxFile(file)
           .then((rows) => {
             const jids = rows
-              .map((x) => x[2] && x[2].trim())
+              .map((x) => x[2] && x[2].trim().toLowerCase())
               .filter((x) => /^[^@/<>'\"]+@[^@/<>'\"]+$/.test(x));
             if (jids.length === 0) {
               alert("Keine Daten gefunden.");
