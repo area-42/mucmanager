@@ -19,6 +19,7 @@ export default {
       selectedRoom: null,
       isConnected: false,
       xmppUser: null,
+      xmppPass: null,
     };
   },
   created() {
@@ -31,9 +32,10 @@ export default {
     onSelectRoom(room) {
       this.selectedRoom = room;
     },
-    onConnStatusChanged(isConnected, xmppUser) {
+    onConnStatusChanged(isConnected, xmppUser, xmppPass) {
       this.isConnected = isConnected;
       this.xmppUser = xmppUser;
+      this.xmppPass = xmppPass;
     },
     onAddUsers(users) {
       this.$refs.memberlist.addMembers(users);
@@ -58,9 +60,10 @@ export default {
       <div class="box">
         <UserList
           :baseurl="appConfig.BASEURL"
-          :apikey="appConfig.APIKEY"
           :selected-room="selectedRoom"
           :is-connected="isConnected"
+          :username="xmppUser"
+          :password="xmppPass"
           @addUsers="onAddUsers"
         />
       </div>

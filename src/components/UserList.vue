@@ -6,7 +6,8 @@ export default {
     selectedRoom: { type: Object, default: null },
     isConnected: { type: Boolean },
     baseurl: { type: String, default: null },
-    apikey: { type: String, default: null },
+    username: { type: String, default: null },
+    password: { type: String, default: null },
   },
   data() {
     return {
@@ -20,20 +21,42 @@ export default {
     currentPage() {
       this.loadUserList();
     },
-  },
-  created() {
-    this.resetAndReload();
+    isConnected() {
+      if (this.isConnected) {
+        const formData = new FormData();
+        formData.append("username", this.username);
+        formData.append("password", this.password);
+        fetch(`${this.baseurl}login`, {
+          method: "POST",
+          credentials: "include",
+          redirect: "manual",
+          body: formData,
+        }).then(() => {
+          this.resetAndReload();
+        });
+      } else {
+        fetch(`${this.baseurl}logout`, {
+          credentials: "include",
+          redirect: "manual",
+        }).then(() => {
+          this.reset();
+        });
+      }
+    },
   },
   methods: {
     loadUserList() {
       let fetchUrl =
-        `${this.baseurl}?api_key=${this.apikey}` +
-        `&size=${LIMITENTRIES}&page=${this.currentPage}`;
+        `${this.baseurl}users` +
+        `?size=${LIMITENTRIES}&page=${this.currentPage}`;
       if (this.filterVal !== "") {
         fetchUrl += `&filterVal=${this.filterVal}`;
       }
       const loader = this.$loading.show();
-      fetch(fetchUrl)
+      fetch(fetchUrl, {
+        credentials: "include",
+        redirect: "manual",
+      })
         .then((res) => res.json())
         .then((json) => {
           this.userentries = json.data;
@@ -50,12 +73,16 @@ export default {
       this.currentPage = 1;
       this.loadUserList();
     },
+    reset() {
+      this.currentPage = 1;
+      this.filterVal = "";
+      this.userentries = [];
+      this.lastPage = 1;
+    },
     resetAndReload() {
-      if (this.baseurl && this.apikey) {
-        this.currentPage = 1;
-        this.filterVal = "";
-        this.loadUserList();
-      }
+      this.currentPage = 1;
+      this.filterVal = "";
+      this.loadUserList();
     },
     addUser(user) {
       this.$emit("addUsers", [user]);
@@ -84,6 +111,7 @@ export default {
       <div>
         <button
           class="mm-button"
+          :disabled="!isConnected"
           title="Liste aktualisieren"
           @click="resetAndReload"
         >
@@ -104,7 +132,7 @@ export default {
         </button>
         <button
           class="mm-button"
-          :disabled="currentPage < 2"
+          :disabled="currentPage < 2 || !isConnected"
           title="Vorherige 500"
           @click="currentPage -= 1"
         >
@@ -112,7 +140,7 @@ export default {
         </button>
         <button
           class="mm-button"
-          :disabled="currentPage > lastPage - 1"
+          :disabled="currentPage > lastPage - 1 || !isConnected"
           title="Nächste 500"
           @click="currentPage += 1"
         >
@@ -122,6 +150,7 @@ export default {
       <input
         v-model="filterVal"
         class="filterUserInput"
+        :disabled="!isConnected"
         placeholder="Filtern nach Name / Dienststelle"
         @change="filterUserResetPage"
       />

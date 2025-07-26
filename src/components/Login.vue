@@ -32,7 +32,8 @@ export default {
     onConnect(status) {
       this.isConnected = status === xmppStatus.CONNECTED;
       const xmppUser = status === xmppStatus.CONNECTED ? this.xmppUser : null;
-      this.$emit("connStatusChanged", this.isConnected, xmppUser);
+      const xmppPass = status === xmppStatus.CONNECTED ? this.xmppPass : null;
+      this.$emit("connStatusChanged", this.isConnected, xmppUser, xmppPass);
       this.connStatus = status;
       if (status === xmppStatus.CONNFAIL) {
         alert("Login fehlgeschlagen");
