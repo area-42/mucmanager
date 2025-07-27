@@ -35,12 +35,7 @@ export default {
           this.resetAndReload();
         });
       } else {
-        fetch(`${this.baseurl}logout`, {
-          credentials: "include",
-          redirect: "manual",
-        }).then(() => {
-          this.reset();
-        });
+        this.reset();
       }
     },
   },
