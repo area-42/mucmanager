@@ -6,8 +6,6 @@ export default {
     selectedRoom: { type: Object, default: null },
     isConnected: { type: Boolean },
     baseurl: { type: String, default: null },
-    username: { type: String, default: null },
-    password: { type: String, default: null },
   },
   data() {
     return {
@@ -23,17 +21,7 @@ export default {
     },
     isConnected() {
       if (this.isConnected) {
-        const formData = new FormData();
-        formData.append("username", this.username);
-        formData.append("password", this.password);
-        fetch(`${this.baseurl}login`, {
-          method: "POST",
-          credentials: "include",
-          redirect: "manual",
-          body: formData,
-        }).then(() => {
-          this.resetAndReload();
-        });
+        this.resetAndReload();
       } else {
         this.reset();
       }

@@ -1,14 +1,13 @@
 <script>
 import UserList from "./components/UserList";
-import Login from "./components/Login";
 import RoomList from "./components/RoomList";
 import MemberList from "./components/MemberList";
 import QrcodeModal from "./components/QrcodeModal";
+import { doXmppLogin, xmppStatus } from "./xmpp_utils.js";
 export default {
   name: "App",
   components: {
     UserList,
-    Login,
     RoomList,
     MemberList,
     QrcodeModal,
@@ -19,26 +18,54 @@ export default {
       selectedRoom: null,
       isConnected: false,
       xmppUser: null,
-      xmppPass: null,
     };
   },
   created() {
     fetch("./config/runtime.json")
       .then((res) => res.json())
-      .then((json) => (this.appConfig = json));
+      .then((json) => (this.appConfig = json))
+      .then(() => fetch(this.appConfig.CREDENTIALS_URL))
+      .then((res) => res.json())
+      .then((json) => this.doLogin(json.jid, json.password));
   },
 
   methods: {
     onSelectRoom(room) {
       this.selectedRoom = room;
     },
-    onConnStatusChanged(isConnected, xmppUser, xmppPass) {
-      this.isConnected = isConnected;
-      this.xmppUser = xmppUser;
-      this.xmppPass = xmppPass;
-    },
     onAddUsers(users) {
       this.$refs.memberlist.addMembers(users);
+    },
+    doLogin(xmppUser, xmppPass) {
+      doXmppLogin(
+        xmppUser,
+        xmppPass,
+        this.appConfig.BOSH_SERVICE,
+        this.appConfig.XMPP_DOMAIN,
+        this.onConnect,
+        window.location.hash === "#debug"
+      );
+    },
+    onConnect(status) {
+      this.isConnected = status === xmppStatus.CONNECTED;
+      this.xmppUser = status === xmppStatus.CONNECTED ? this.xmppUser : null;
+      this.connStatus = status;
+      if (status === xmppStatus.CONNFAIL) {
+        alert("Login fehlgeschlagen");
+      } else if (status === xmppStatus.AUTHFAIL) {
+        alert("Falsche Nutzer/Passwortkombination");
+      }
+      if (
+        [
+          xmppStatus.CONNECTING,
+          xmppStatus.AUTHENTICATING,
+          xmppStatus.DISCONNECTING,
+        ].includes(status)
+      ) {
+        this.loader = this.$loading.show();
+      } else {
+        this.loader.hide();
+      }
     },
   },
 };
@@ -49,21 +76,12 @@ export default {
     <v-dialog />
     <vue-progress-bar />
     <QrcodeModal />
-    <div class="login">
-      <Login
-        :bosh-service="appConfig.BOSH_SERVICE"
-        :xmpp-domain="appConfig.XMPP_DOMAIN"
-        @connStatusChanged="onConnStatusChanged"
-      />
-    </div>
     <div class="main">
       <div class="box">
         <UserList
           :baseurl="appConfig.BASEURL"
           :selected-room="selectedRoom"
           :is-connected="isConnected"
-          :username="xmppUser"
-          :password="xmppPass"
           @addUsers="onAddUsers"
         />
       </div>
@@ -117,9 +135,6 @@ body {
   display: flex;
   flex: 1;
   min-height: 0;
-}
-.login {
-  margin-top: 5px;
 }
 .box {
   padding: 5px;
