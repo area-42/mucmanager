@@ -37,6 +37,7 @@ export default {
       this.$refs.memberlist.addMembers(users);
     },
     doLogin(xmppUser, xmppPass) {
+      this.xmppUser = xmppUser;
       doXmppLogin(
         xmppUser,
         xmppPass,
@@ -48,7 +49,6 @@ export default {
     },
     onConnect(status) {
       this.isConnected = status === xmppStatus.CONNECTED;
-      this.xmppUser = status === xmppStatus.CONNECTED ? this.xmppUser : null;
       this.connStatus = status;
       if (status === xmppStatus.CONNFAIL) {
         alert("Login fehlgeschlagen");
@@ -95,7 +95,7 @@ export default {
             appConfig.ROOMNAME_GUIDELINE_DESCRIPTION
           "
           :xmpp-domain="appConfig.XMPP_DOMAIN"
-          :xmpp-user="xmppUser"
+          :xmpp-user="isConnected ? xmppUser : null"
           @selectRoom="onSelectRoom"
         />
       </div>
@@ -105,7 +105,7 @@ export default {
           :selected-room="selectedRoom"
           :is-connected="isConnected"
           :xmpp-domain="appConfig.XMPP_DOMAIN"
-          :xmpp-user="xmppUser"
+          :xmpp-user="isConnected ? xmppUser : null"
         />
       </div>
     </div>
