@@ -26,7 +26,7 @@ export default {
       .then((json) => (this.appConfig = json))
       .then(() => fetch(this.appConfig.CREDENTIALS_URL))
       .then((res) => res.json())
-      .then((json) => this.doLogin(json.jid, json.password));
+      .then((json) => this.doLogin(json.jid.split("@")[0], json.password));
   },
 
   methods: {
