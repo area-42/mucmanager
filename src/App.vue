@@ -24,9 +24,7 @@ export default {
     fetch("./config/runtime.json")
       .then((res) => res.json())
       .then((json) => (this.appConfig = json))
-      .then(() => fetch(this.appConfig.CREDENTIALS_URL))
-      .then((res) => res.json())
-      .then((json) => this.doLogin(json.jid.split("@")[0], json.password));
+      .then(() => this.doLogin());
   },
 
   methods: {
@@ -36,16 +34,20 @@ export default {
     onAddUsers(users) {
       this.$refs.memberlist.addMembers(users);
     },
-    doLogin(xmppUser, xmppPass) {
-      this.xmppUser = xmppUser;
-      doXmppLogin(
-        xmppUser,
-        xmppPass,
-        this.appConfig.BOSH_SERVICE,
-        this.appConfig.XMPP_DOMAIN,
-        this.onConnect,
-        window.location.hash === "#debug"
-      );
+    doLogin() {
+      fetch(this.appConfig.CREDENTIALS_URL)
+        .then((res) => res.json())
+        .then((json) => {
+          this.xmppUser = json.jid.split("@")[0];
+          doXmppLogin(
+            this.xmppUser,
+            json.password,
+            this.appConfig.BOSH_SERVICE,
+            this.appConfig.XMPP_DOMAIN,
+            this.onConnect,
+            window.location.hash === "#debug"
+          );
+        });
     },
     onConnect(status) {
       this.isConnected = status === xmppStatus.CONNECTED;
@@ -57,6 +59,8 @@ export default {
         alert("Login fehlgeschlagen");
       } else if (status === xmppStatus.AUTHFAIL) {
         alert("Falsche Nutzer/Passwortkombination");
+      } else if (status === xmppStatus.DISCONNECTED) {
+        this.doLogin();
       }
       if (
         [
