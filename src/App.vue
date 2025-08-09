@@ -50,6 +50,9 @@ export default {
     onConnect(status) {
       this.isConnected = status === xmppStatus.CONNECTED;
       this.connStatus = status;
+      document.title = `MucManager${
+        this.isConnected ? ` (${this.xmppUser})` : ""
+      }`;
       if (status === xmppStatus.CONNFAIL) {
         alert("Login fehlgeschlagen");
       } else if (status === xmppStatus.AUTHFAIL) {
