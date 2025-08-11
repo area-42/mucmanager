@@ -6,5 +6,6 @@
   "CREDENTIALS_URL": "https://somedomain.tld/userlist/credentials",
   "ROOMNAME_GUIDELINE": "^[a-z0-9._-]{5,40}$",
   "ROOMNAME_GUIDELINE_DESCRIPTION": "- mindestens 5 Zeichen, aber maximal 40 Zeichen,\n- Kleinbuchstaben von a bis z (aber keine Umlaute) oder\n- Zahlen oder\n- Punkt (.) oder\n- Unterstrich (_) oder\n- Bindestrich (-),\n- keine Leerzeichen",
-  "MEMBERSONLY_ADMINS": ["somejid@somedomain.tld"]
+  "MEMBERSONLY_ADMINS": ["somejid@somedomain.tld"],
+  "LOGIN_URL": "/userlist/login?next=/mucmanager/"
 }

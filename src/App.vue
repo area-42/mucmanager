@@ -35,19 +35,24 @@ export default {
       this.$refs.memberlist.addMembers(users);
     },
     doLogin() {
-      fetch(this.appConfig.CREDENTIALS_URL)
-        .then((res) => res.json())
-        .then((json) => {
-          this.xmppUser = json.jid.split("@")[0];
-          doXmppLogin(
-            this.xmppUser,
-            json.password,
-            this.appConfig.BOSH_SERVICE,
-            this.appConfig.XMPP_DOMAIN,
-            this.onConnect,
-            window.location.hash === "#debug"
-          );
-        });
+      fetch(this.appConfig.CREDENTIALS_URL).then((res) => {
+        if (res.ok) {
+          res.json().then((json) => {
+            this.xmppUser = json.jid.split("@")[0];
+            doXmppLogin(
+              this.xmppUser,
+              json.password,
+              this.appConfig.BOSH_SERVICE,
+              this.appConfig.XMPP_DOMAIN,
+              this.onConnect,
+              window.location.hash === "#debug"
+            );
+          });
+        } else {
+          this.appConfig.LOGIN_URL &&
+            (window.location.href = this.appConfig.LOGIN_URL);
+        }
+      });
     },
     onConnect(status) {
       this.isConnected = status === xmppStatus.CONNECTED;
