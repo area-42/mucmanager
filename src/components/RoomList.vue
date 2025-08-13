@@ -11,17 +11,10 @@ export default {
   name: "Roomlist",
   props: {
     isConnected: { type: Boolean },
-    membersOnlyAdmins: {
-      type: Array,
-      default: function () {
-        return [];
-      },
-    },
+    isMembersOnlyAdmin: { type: Boolean },
     mucDomain: { type: String, default: null },
     roomnameGuideline: { type: String, default: null },
     roomnameGuidelineDescription: { type: String, default: null },
-    xmppDomain: { type: String, default: null },
-    xmppUser: { type: String, default: null },
   },
   data() {
     return {
@@ -92,11 +85,6 @@ export default {
         }
       }
     },
-    canEditMembersOnly() {
-      return this.membersOnlyAdmins.includes(
-        this.xmppUser + "@" + this.xmppDomain
-      );
-    },
     delRoom() {
       if (confirm("Raum wirklich löschen?")) {
         const loader = this.$loading.show();
@@ -118,7 +106,7 @@ export default {
             .getAttribute("affiliation");
         })
         .then(() => {
-          if (this.canEditMembersOnly()) {
+          if (this.isMembersOnlyAdmin) {
             return getRoomFeatures(this.selectedRoom.jid);
           }
           return Promise.resolve([]);
@@ -240,7 +228,7 @@ export default {
           <font-awesome-icon :icon="['fas', 'edit']" />
         </button>
         <button
-          v-if="isConnected && canEditMembersOnly()"
+          v-if="isConnected && isMembersOnlyAdmin"
           class="mm-button"
           :disabled="
             !isConnected ||

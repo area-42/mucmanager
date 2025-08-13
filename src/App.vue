@@ -18,6 +18,7 @@ export default {
       selectedRoom: null,
       isConnected: false,
       xmppUser: null,
+      isMembersOnlyAdmin: false,
     };
   },
   created() {
@@ -39,6 +40,7 @@ export default {
         if (res.ok) {
           res.json().then((json) => {
             this.xmppUser = json.jid.split("@")[0];
+            this.isMembersOnlyAdmin = json.membersonly_admin;
             doXmppLogin(
               this.xmppUser,
               json.password,
@@ -100,14 +102,12 @@ export default {
       <div class="box">
         <RoomList
           :is-connected="isConnected"
-          :members-only-admins="appConfig.MEMBERSONLY_ADMINS"
+          :is-members-only-admin="isMembersOnlyAdmin"
           :muc-domain="appConfig.MUC_DOMAIN"
           :roomname-guideline="appConfig.ROOMNAME_GUIDELINE"
           :roomname-guideline-description="
             appConfig.ROOMNAME_GUIDELINE_DESCRIPTION
           "
-          :xmpp-domain="appConfig.XMPP_DOMAIN"
-          :xmpp-user="isConnected ? xmppUser : null"
           @selectRoom="onSelectRoom"
         />
       </div>
