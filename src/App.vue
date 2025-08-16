@@ -36,7 +36,9 @@ export default {
       this.$refs.memberlist.addMembers(users);
     },
     doLogin() {
-      fetch(this.appConfig.CREDENTIALS_URL).then((res) => {
+      fetch(this.appConfig.CREDENTIALS_URL, {
+        credentials: "same-origin",
+      }).then((res) => {
         if (res.ok) {
           res.json().then((json) => {
             this.xmppUser = json.jid.split("@")[0];
