@@ -53,8 +53,12 @@ export default {
             );
           });
         } else {
-          this.appConfig.LOGIN_URL &&
-            (window.location.href = this.appConfig.LOGIN_URL);
+          if (this.appConfig.LOGIN_URL) {
+            localStorage.clear();
+            sessionStorage.clear();
+            indexedDB.deleteDatabase("converse-persistent");
+            window.location.href = this.appConfig.LOGIN_URL;
+          }
         }
       });
     },
@@ -141,15 +145,18 @@ export default {
   display: flex;
   flex-direction: column;
 }
+
 body {
   font-size: 10px;
   font-size: 1.3vw;
 }
+
 .main {
   display: flex;
   flex: 1;
   min-height: 0;
 }
+
 .box {
   padding: 5px;
   background: #210b61;
@@ -160,20 +167,24 @@ body {
   flex-direction: column;
   width: 0;
 }
+
 *:focus {
   outline: none;
 }
+
 .title {
   font-size: 1.6vw;
   color: lightblue;
   text-align: center;
   margin-top: 10px;
 }
+
 .menuOptions {
   height: 6vw;
   display: flex;
   flex-direction: column;
 }
+
 .mm-button {
   font-size: 1.6vw;
   color: rgb(88, 170, 197);
@@ -186,6 +197,7 @@ body {
   padding-bottom: 0;
   padding-left: 0;
 }
+
 .mm-button:disabled {
   color: grey;
   cursor: default;
